@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure &amp; Workflows — Wire &amp; Wireless</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose', fontFamily: 'Sarabun, Inter, sans-serif', flowchart: { curve: 'basis', padding: 20 } });
+    </script>
+    <style>
+        :root {
+            --bg-color: #0f172a; --sidebar-bg: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.7); --card-bg-solid: #1e293b;
+            --border-color: rgba(255,255,255,0.08); --border-subtle: rgba(255,255,255,0.05);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
+            --accent-color: #38bdf8; --accent-glow: rgba(56,189,248,0.25);
+            --success-color: #4ade80; --warning-color: #fbbf24; --danger-color: #f87171;
+            --tier-frontend: #818cf8; --tier-frontend-bg: rgba(129,140,248,0.1);
+            --tier-backend: #38bdf8;  --tier-backend-bg: rgba(56,189,248,0.1);
+            --tier-database: #4ade80; --tier-database-bg: rgba(74,222,128,0.1);
+            --tier-storage: #fb923c;  --tier-storage-bg: rgba(251,146,60,0.1);
+            --tier-external: #e879f9; --tier-external-bg: rgba(232,121,249,0.1);
+            --tier-infra: #94a3b8;    --tier-infra-bg: rgba(148,163,184,0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun','Inter',sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* ── Sidebar ── */
+        aside { width: 280px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; padding: 1.25rem 0.875rem; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; padding-left: 0.5rem; }
+        .logo-icon { background: linear-gradient(135deg, #fb923c, #e879f9); width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(251,146,60,0.3); flex-shrink: 0; }
+        .logo-icon i { width: 18px; height: 18px; }
+        .logo-text h1 { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+        .logo-text p { font-size: 0.66rem; color: var(--text-secondary); }
+        .nav-section-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 0.65rem 1rem 0.25rem; color: var(--text-secondary); opacity: 0.55; }
+        .nav-section-label.acct  { color: #38bdf8; opacity: 0.8; }
+        .nav-section-label.work  { color: #818cf8; opacity: 0.8; }
+        .nav-section-label.mgmt  { color: #4ade80; opacity: 0.8; }
+        .nav-section-label.trackb{ color: #fb923c; opacity: 0.8; }
+        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 0.15rem; overflow-y: auto; flex-grow: 1; padding-right: 0.2rem; }
+        .nav-list::-webkit-scrollbar { width: 3px; }
+        .nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        .nav-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.875rem; border-radius: 7px; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; transition: all 0.15s ease; text-decoration: none; border: 1px solid transparent; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.04); color: var(--text-primary); }
+        .nav-item.active { background-color: rgba(56,189,248,0.1); color: var(--accent-color); border-color: rgba(56,189,248,0.2); }
+        .nav-item.active.work  { background-color: rgba(129,140,248,0.1); color: #818cf8; border-color: rgba(129,140,248,0.2); }
+        .nav-item.active.mgmt  { background-color: rgba(74,222,128,0.1); color: #4ade80; border-color: rgba(74,222,128,0.2); }
+        .nav-item.active.trackb{ background-color: rgba(251,146,60,0.1); color: #fb923c; border-color: rgba(251,146,60,0.2); }
+        .nav-item i { width: 14px; height: 14px; flex-shrink: 0; }
+        .nav-divider { border: none; border-top: 1px solid var(--border-color); margin: 0.35rem 0; }
+
+        /* ── Main ── */
+        main { margin-left: 280px; flex-grow: 1; padding: 2.5rem 3rem; max-width: 1400px; }
+        header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; }
+        .header-eyebrow { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .header-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-primary); text-wrap: balance; }
+        .header-desc { color: var(--text-secondary); font-size: 0.93rem; line-height: 1.65; max-width: 72ch; }
+
+        /* ── Panels ── */
+        .module-panel { display: none; animation: fadeIn 0.25s ease forwards; }
+        .module-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Cards ── */
+        .card { background-color: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem; margin-bottom: 1.75rem; }
+        .card-title { font-size: 1.03rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.875rem; }
+        .card-title i { width: 16px; height: 16px; color: var(--accent-color); flex-shrink: 0; }
+
+        /* ── Grids ── */
+        .grid-2     { display: grid; grid-template-columns: 2fr 1fr; gap: 1.75rem; margin-bottom: 1.75rem; }
+        .grid-equal { display: grid; grid-template-columns: 1fr 1fr;   gap: 1.75rem; margin-bottom: 1.75rem; }
+        .grid-3     { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 1.75rem; }
+        @media (max-width: 1100px) { .grid-2,.grid-equal { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px)  { main { padding: 1.5rem; } .grid-3 { grid-template-columns: 1fr; } }
+
+        /* ── Diagrams ── */
+        .diagram-container { background-color: rgba(15,23,42,0.8); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 1.5rem; overflow-x: auto; display: flex; justify-content: center; margin-bottom: 1.5rem; min-height: 100px; }
+        .mermaid { width: 100%; display: flex; justify-content: center; }
+
+        /* ── Tier Legend ── */
+        .tier-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .tier-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.28rem 0.6rem; border-radius: 6px; font-size: 0.73rem; font-weight: 600; border: 1px solid transparent; }
+        .tier-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .tier-badge.frontend { background: var(--tier-frontend-bg); color: var(--tier-frontend); border-color: rgba(129,140,248,0.25); }
+        .tier-badge.backend  { background: var(--tier-backend-bg);  color: var(--tier-backend);  border-color: rgba(56,189,248,0.25); }
+        .tier-badge.database { background: var(--tier-database-bg); color: var(--tier-database); border-color: rgba(74,222,128,0.25); }
+        .tier-badge.storage  { background: var(--tier-storage-bg);  color: var(--tier-storage);  border-color: rgba(251,146,60,0.25); }
+        .tier-badge.external { background: var(--tier-external-bg); color: var(--tier-external); border-color: rgba(232,121,249,0.25); }
+        .tier-badge.infra    { background: var(--tier-infra-bg);    color: var(--tier-infra);    border-color: rgba(148,163,184,0.2); }
+
+        /* ── Stats Row ── */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+        .stat-item { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem 1rem 1rem; }
+        .stat-label { font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 0.2rem; }
+        .stat-sub   { font-size: 0.72rem; color: var(--text-secondary); }
+
+        /* ── Tables ── */
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table th,.info-table td { text-align: left; padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border-subtle); font-size: 0.875rem; vertical-align: top; }
+        .info-table th { color: var(--text-secondary); font-weight: 500; white-space: nowrap; font-size: 0.78rem; }
+        .info-table td:first-child { font-weight: 600; color: var(--text-primary); width: 32%; white-space: nowrap; }
+        .info-table tr:last-child td { border-bottom: none; }
+        .info-table tr:hover td { background: rgba(255,255,255,0.015); }
+        .info-table thead th { background: rgba(255,255,255,0.03); text-transform: uppercase; letter-spacing: 0.04em; }
+        .info-table thead th:first-child { width: auto; white-space: normal; }
+
+        /* ── Tags ── */
+        .tag { display: inline-flex; align-items: center; padding: 0.18rem 0.5rem; border-radius: 5px; font-size: 0.71rem; font-weight: 600; margin: 0.1rem 0; }
+        .tag-primary { background: rgba(56,189,248,0.12);  color: #38bdf8; }
+        .tag-success { background: rgba(74,222,128,0.12);  color: #4ade80; }
+        .tag-warning { background: rgba(251,191,36,0.12);  color: #fbbf24; }
+        .tag-danger  { background: rgba(248,113,113,0.12); color: #f87171; }
+        .tag-purple  { background: rgba(129,140,248,0.12); color: #818cf8; }
+        .tag-orange  { background: rgba(251,146,60,0.12);  color: #fb923c; }
+
+        /* ── Code ── */
+        .code-snippet { font-family: monospace; background-color: rgba(15,23,42,0.8); border: 1px solid var(--border-subtle); padding: 0.1rem 0.4rem; border-radius: 4px; color: #fb7185; font-size: 0.82rem; }
+
+        /* ── Callouts ── */
+        .callout { border: 1px solid rgba(56,189,248,0.25); background-color: rgba(56,189,248,0.06); padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; line-height: 1.65; }
+        .callout.warning { border-color: rgba(251,191,36,0.25); background-color: rgba(251,191,36,0.06); }
+        .callout.success { border-color: rgba(74,222,128,0.25); background-color: rgba(74,222,128,0.06); }
+        .callout-title { font-weight: 600; margin-bottom: 0.4rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; }
+
+        /* ── Steps List ── */
+        .steps-list { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+        .step-item { display: flex; gap: 1rem; }
+        .step-number { background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent-color); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; margin-top: 0.15rem; }
+        .step-content h4 { font-size: 0.93rem; font-weight: 600; margin-bottom: 0.35rem; }
+        .step-content p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── Badge List ── */
+        .badge-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        /* ── Storage Bars ── */
+        .storage-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
+        .storage-bar-track { flex-grow: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+        .storage-bar-fill  { height: 100%; border-radius: 3px; }
+        .storage-bar-label { font-size: 0.73rem; color: var(--text-secondary); white-space: nowrap; min-width: 36px; text-align: right; }
+
+        /* ── App Cards ── */
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+        .app-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; transition: border-color 0.15s; }
+        .app-card:hover { border-color: rgba(56,189,248,0.3); }
+        .app-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; gap: 0.5rem; }
+        .app-card-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+        .app-card-tech { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem; }
+        .app-card-body { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem; }
+        .app-card-footer { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+        /* ── DB Cards ── */
+        .db-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+        .db-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; }
+        .db-card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .db-icon { width: 30px; height: 30px; border-radius: 7px; background: var(--tier-database-bg); display: flex; align-items: center; justify-content: center; }
+        .db-icon i { width: 14px; height: 14px; color: var(--tier-database); }
+        .db-card-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+        .db-card-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.1rem; }
+        .db-card-tables { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.7; }
+        .db-table-count { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; font-weight: 700; color: var(--tier-database); margin-bottom: 0.5rem; }
+
+        /* ── Spec Table ── */
+        .spec-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .spec-table th { padding: 0.75rem 1rem; text-align: center; font-weight: 600; font-size: 0.875rem; border-bottom: 2px solid var(--border-color); }
+        .spec-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border-subtle); text-align: center; color: var(--text-secondary); }
+        .spec-table td:first-child { text-align: left; font-weight: 600; color: var(--text-primary); }
+        .spec-table tr:last-child td { border-bottom: none; }
+        .spec-table .col-prod { background-color: rgba(56,189,248,0.04); }
+        .spec-table th.col-prod { color: var(--accent-color); }
+        .spec-table .highlight-cell { color: var(--text-primary); font-weight: 600; }
+        .env-header { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+        .env-icon-wrap { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.2rem; }
+        .env-icon-wrap.dev  { background: rgba(148,163,184,0.15); color: var(--tier-infra); }
+        .env-icon-wrap.stg  { background: rgba(251,191,36,0.15);   color: var(--warning-color); }
+        .env-icon-wrap.prod { background: rgba(56,189,248,0.15);   color: var(--accent-color); }
+
+        /* ── Cost Table ── */
+        .cost-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        .cost-table th,.cost-table td { padding: 0.65rem 0.875rem; border-bottom: 1px solid var(--border-subtle); }
+        .cost-table th { color: var(--text-secondary); font-weight: 500; font-size: 0.78rem; }
+        .cost-table td:first-child { font-weight: 600; color: var(--text-primary); }
+        .cost-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--text-primary); }
+        .cost-table .total-row { background: rgba(56,189,248,0.05); }
+
+        /* ── Recommend Box ── */
+        .recommend-box { border: 1px solid rgba(74,222,128,0.3); background: rgba(74,222,128,0.05); border-radius: 10px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+        .recommend-box h4 { font-size: 0.93rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .recommend-box p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.65; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside>
+    <div class="logo-container">
+        <div class="logo-icon"><i data-lucide="server"></i></div>
+        <div class="logo-text">
+            <h1>Infrastructure &amp; Workflows</h1>
+            <p>Wire &amp; Wireless Co., Ltd.</p>
+        </div>
+    </div>
+    <ul class="nav-list">
+        <li class="nav-section-label">สถาปัตยกรรมระบบ</li>
+        <li><a class="nav-item active" data-target="infra-overview" onclick="switchTab(this)"><i data-lucide="layout-dashboard"></i> ภาพรวมระบบ</a></li>
+        <li><a class="nav-item" data-target="arch" onclick="switchTab(this)"><i data-lucide="network"></i> สถาปัตยกรรมสมบูรณ์</a></li>
+        <li><a class="nav-item" data-target="app-tier" onclick="switchTab(this)"><i data-lucide="monitor"></i> Application Access Flow</a></li>
+        <li><a class="nav-item" data-target="db-tier" onclick="switchTab(this)"><i data-lucide="database"></i> Database Architecture</a></li>
+        <li class="nav-section-label">การวิเคราะห์ Server</li>
+        <li><a class="nav-item" data-target="storage" onclick="switchTab(this)"><i data-lucide="hard-drive"></i> Storage Analysis</a></li>
+        <li><a class="nav-item" data-target="server-spec" onclick="switchTab(this)"><i data-lucide="cpu"></i> Server Specifications</a></li>
+        <li><a class="nav-item" data-target="env-compare" onclick="switchTab(this)"><i data-lucide="git-compare-arrows"></i> Dev / Staging / Prod</a></li>
+        <li><a class="nav-item" data-target="cost" onclick="switchTab(this)"><i data-lucide="circle-dollar-sign"></i> Cost Estimation</a></li>
+        <hr class="nav-divider">
+        <li class="nav-section-label acct">Account A-Team</li>
+        <li><a class="nav-item" data-target="acct-overview" onclick="switchTab(this)"><i data-lucide="info"></i> ภาพรวม</a></li>
+        <li><a class="nav-item" data-target="acct-auth" onclick="switchTab(this)"><i data-lucide="shield-check"></i> 1. Auth &amp; Permissions</a></li>
+        <li><a class="nav-item" data-target="acct-fuel" onclick="switchTab(this)"><i data-lucide="fuel"></i> 2. Technician Fuel</a></li>
+        <li><a class="nav-item" data-target="acct-ocr" onclick="switchTab(this)"><i data-lucide="scan-line"></i> 3. OCR Document</a></li>
+        <li><a class="nav-item" data-target="acct-detail" onclick="switchTab(this)"><i data-lucide="file-spreadsheet"></i> 4. Detail &amp; VLookup</a></li>
+        <li><a class="nav-item" data-target="acct-drive" onclick="switchTab(this)"><i data-lucide="hard-drive"></i> 5. File System</a></li>
+        <li><a class="nav-item" data-target="acct-gl" onclick="switchTab(this)"><i data-lucide="book-open"></i> 6. GL Account</a></li>
+        <li><a class="nav-item" data-target="acct-bank-charge" onclick="switchTab(this)"><i data-lucide="coins"></i> 7. Bank Charge</a></li>
+        <li><a class="nav-item" data-target="acct-bank-transfer" onclick="switchTab(this)"><i data-lucide="send"></i> 8. Bank Transfer</a></li>
+        <li><a class="nav-item" data-target="acct-reconcile" onclick="switchTab(this)"><i data-lucide="git-compare"></i> 9. Reconcile</a></li>
+        <li><a class="nav-item" data-target="acct-sap" onclick="switchTab(this)"><i data-lucide="download"></i> 10. SAP Export</a></li>
+        <li><a class="nav-item" data-target="acct-admin" onclick="switchTab(this)"><i data-lucide="users"></i> 11. Admin &amp; Audit</a></li>
+        <hr class="nav-divider">
+        <li class="nav-section-label work">Work Tracking</li>
+        <li><a class="nav-item work" data-target="work-overview" onclick="switchTab(this)"><i data-lucide="info"></i> ภาพรวม</a></li>
+        <li><a class="nav-item work" data-target="work-wbs" onclick="switchTab(this)"><i data-lucide="git-branch"></i> WBS &amp; Project Board</a></li>
+        <li><a class="nav-item work" data-target="work-team" onclick="switchTab(this)"><i data-lucide="users"></i> ทีมและสิทธิ์</a></li>
+        <li><a class="nav-item work" data-target="work-misc" onclick="switchTab(this)"><i data-lucide="settings"></i> Tech Stack &amp; Misc</a></li>
+        <hr class="nav-divider">
+        <li class="nav-section-label mgmt">Management Tracking</li>
+        <li><a class="nav-item mgmt" data-target="mgmt-overview" onclick="switchTab(this)"><i data-lucide="info"></i> ภาพรวม</a></li>
+        <li><a class="nav-item mgmt" data-target="mgmt-finance" onclick="switchTab(this)"><i data-lucide="receipt"></i> Finance &amp; Reports</a></li>
+        <li><a class="nav-item mgmt" data-target="mgmt-field" onclick="switchTab(this)"><i data-lucide="clipboard-list"></i> Field Reports</a></li>
+        <li><a class="nav-item mgmt" data-target="mgmt-import" onclick="switchTab(this)"><i data-lucide="upload"></i> Import Pipeline (AI)</a></li>
+        <li><a class="nav-item mgmt" data-target="mgmt-task" onclick="switchTab(this)"><i data-lucide="list-checks"></i> Tasks &amp; Templates</a></li>
+        <hr class="nav-divider">
+        <li class="nav-section-label trackb">Track B</li>
+        <li><a class="nav-item trackb" data-target="trackb-overview" onclick="switchTab(this)"><i data-lucide="info"></i> ภาพรวม</a></li>
+        <li><a class="nav-item trackb" data-target="trackb-cm" onclick="switchTab(this)"><i data-lucide="bar-chart-2"></i> CM Analytics &amp; KPI</a></li>
+        <li><a class="nav-item trackb" data-target="trackb-import" onclick="switchTab(this)"><i data-lucide="layers"></i> BullMQ Worker</a></li>
+        <li><a class="nav-item trackb" data-target="trackb-auth" onclick="switchTab(this)"><i data-lucide="key"></i> RS256 Auth &amp; Security</a></li>
+    </ul>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
+
+<!-- ══ INFRA: OVERVIEW ══ -->
+<section id="infra-overview" class="module-panel active">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="server" style="width:13px;height:13px;"></i> Infrastructure Documentation</div>
+        <div class="header-title"><i data-lucide="layout-dashboard" style="color:var(--accent-color);width:28px;height:28px;"></i> ภาพรวมสถาปัตยกรรมและข้อกำหนดระบบ</div>
+        <div class="header-desc">เอกสารวิเคราะห์โครงสร้างระบบสมบูรณ์ ครอบคลุมทุก Application, Database, File Storage พร้อมข้อกำหนด Server Specification และประมาณการค่าใช้จ่าย</div>
+    </header>
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">Web Applications</div><div class="stat-value">4</div><div class="stat-sub">Account, Work, Mgmt, Track B</div></div>
+        <div class="stat-item"><div class="stat-label">Databases</div><div class="stat-value">4</div><div class="stat-sub">PostgreSQL 15 + Redis 7</div></div>
+        <div class="stat-item"><div class="stat-label">Modules (Account)</div><div class="stat-value">15+</div><div class="stat-sub">auth, OCR, fuel, reconcile…</div></div>
+        <div class="stat-item"><div class="stat-label">Database Tables</div><div class="stat-value">40+</div><div class="stat-sub">across all schemas</div></div>
+        <div class="stat-item"><div class="stat-label">Docker Services</div><div class="stat-value">12+</div><div class="stat-sub">Production containers</div></div>
+        <div class="stat-item"><div class="stat-label">Concurrent Users</div><div class="stat-value">200</div><div class="stat-sub">Max estimated (Production)</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="layers"></i> Tier Color Legend</div>
+        <div class="tier-legend">
+            <span class="tier-badge frontend"><span class="tier-dot" style="background:var(--tier-frontend)"></span>Frontend (Next.js / React / Vite)</span>
+            <span class="tier-badge backend"><span class="tier-dot" style="background:var(--tier-backend)"></span>Backend API (Express / Fastify)</span>
+            <span class="tier-badge database"><span class="tier-dot" style="background:var(--tier-database)"></span>Database (PostgreSQL / Redis)</span>
+            <span class="tier-badge storage"><span class="tier-dot" style="background:var(--tier-storage)"></span>File Storage (Local Disk / NAS)</span>
+            <span class="tier-badge external"><span class="tier-dot" style="background:var(--tier-external)"></span>External Services (AI / Google / SAP)</span>
+            <span class="tier-badge infra"><span class="tier-dot" style="background:var(--tier-infra)"></span>Infrastructure (Docker / CI/CD)</span>
+        </div>
+        <table class="info-table">
+            <thead><tr><th>โปรเจกต์</th><th>Frontend</th><th>Backend</th><th>Database</th><th>Port</th><th>Deploy</th></tr></thead>
+            <tbody>
+                <tr><td>Account A-Team</td><td><span class="tag tag-purple">Next.js 16</span></td><td><span class="tag tag-primary">Express.js 5</span></td><td><span class="tag tag-success">account_a_team</span></td><td>:3000/:4000</td><td><span class="tag tag-orange">GitLab CI + Portainer</span></td></tr>
+                <tr><td>Work Tracking</td><td><span class="tag tag-purple">Next.js 16</span></td><td><span class="tag tag-primary">Next.js API Routes</span></td><td><span class="tag tag-success">work_tracking</span></td><td>:8090</td><td><span class="tag tag-orange">Docker Compose</span></td></tr>
+                <tr><td>Management Tracking</td><td><span class="tag tag-purple">Vite + React 18</span></td><td><span class="tag tag-primary">Fastify 5</span></td><td><span class="tag tag-success">management_tracking</span></td><td>:4090/:80</td><td><span class="tag tag-orange">Docker Compose</span></td></tr>
+                <tr><td>Track B (Team Performance)</td><td><span class="tag tag-purple">Next.js 16</span></td><td><span class="tag tag-primary">Next.js + BullMQ Worker</span></td><td><span class="tag tag-success">team_performance</span> <span class="tag tag-danger">Redis 7</span></td><td>:3080</td><td><span class="tag tag-orange">Docker Compose</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout">
+        <div class="callout-title"><i data-lucide="info" style="width:15px;height:15px;color:var(--accent-color)"></i> การ Deploy Production</div>
+        ระบบทั้งหมดรันบน Docker Compose ภายใต้ <code class="code-snippet">team-network</code> (Docker external network) ร่วมกัน และเชื่อมต่อกับ PostgreSQL 15 จาก <code class="code-snippet">shared-db</code> stack ผ่าน port <code class="code-snippet">5433</code> — Account A-Team ใช้ GitLab CI/CD + Portainer GitOps (Pull-based)
+    </div>
+</section>
+
+<!-- ══ INFRA: ARCH ══ -->
+<section id="arch" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="network" style="width:13px;height:13px;"></i> System Architecture</div>
+        <div class="header-title"><i data-lucide="network" style="color:var(--accent-color);width:28px;height:28px;"></i> สถาปัตยกรรมระบบสมบูรณ์ (Full System Architecture)</div>
+        <div class="header-desc">ภาพรวมการเชื่อมต่อระหว่างทุก Layer ของระบบ ตั้งแต่ผู้ใช้งานจนถึง External Services</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="git-fork"></i> Full Stack Connectivity Diagram</div>
+        <div class="tier-legend">
+            <span class="tier-badge frontend"><span class="tier-dot" style="background:var(--tier-frontend)"></span>Frontend</span>
+            <span class="tier-badge backend"><span class="tier-dot" style="background:var(--tier-backend)"></span>Backend</span>
+            <span class="tier-badge database"><span class="tier-dot" style="background:var(--tier-database)"></span>Database</span>
+            <span class="tier-badge storage"><span class="tier-dot" style="background:var(--tier-storage)"></span>Storage</span>
+            <span class="tier-badge external"><span class="tier-dot" style="background:var(--tier-external)"></span>External</span>
+        </div>
+        <div class="diagram-container"><div class="mermaid">
+graph TB
+    subgraph Users["👥 ผู้ใช้งาน"]
+        U1["ฝ่ายบัญชี"] U2["ช่างเทคนิค"] U3["ผู้จัดการ / Admin"]
+    end
+    subgraph Gateway["🌐 Access Gateway — support.ww.co.th"]
+        Portal["Portal Landing Page\nnginx / Reverse Proxy"]
+        Auth{"App Permission\nJWT + RolePermission"}
+    end
+    subgraph FrontendLayer["🖥 Frontend Layer"]
+        FE1["Account A-Team\nNext.js 16 — :3000"]
+        FE2["Work Tracking\nNext.js 16 — :8090"]
+        FE3["Management Tracking\nVite+React — :80"]
+        FE4["Track B Analytics\nNext.js 16 — :3080"]
+    end
+    subgraph BackendLayer["⚙️ Backend API Layer"]
+        BE1["Express.js API — :4000"]
+        BE2["Next.js API Routes"]
+        BE3["Fastify 5 API — :4090"]
+        BE4["Next.js + BullMQ Worker"]
+    end
+    subgraph DatabaseLayer["🗄 Database Layer (shared-postgres:5433)"]
+        PG1[("account_a_team\n40+ tables")]
+        PG2[("work_tracking\n~15 tables")]
+        PG3[("management_tracking\n~12 tables")]
+        PG4[("team_performance\n~8 tables")]
+        Redis[("Redis 7\nBullMQ Queue")]
+    end
+    subgraph StorageLayer["💾 File Storage (./upload-file/)"]
+        FS["Local Disk\nTechnician/ OCR/ Drive/\nBankCharge/ BankTransfer/\nReconcile/ Details/"]
+    end
+    subgraph ExternalLayer["🔌 External Services"]
+        AI["OpenRouter API\nVision LLM / OCR"]
+        GS["Google Sheets API"]
+        SAP["SAP ERP System"]
+    end
+    U1 & U2 & U3 --> Portal
+    Portal --> Auth
+    Auth -->|Account System| FE1
+    Auth -->|Work Module| FE2
+    Auth -->|Management| FE3
+    Auth -->|Analytics| FE4
+    FE1 --> BE1
+    FE2 --> BE2
+    FE3 --> BE3
+    FE4 --> BE4
+    BE1 --> PG1
+    BE2 --> PG2
+    BE3 --> PG3
+    BE4 --> PG4
+    BE4 --> Redis
+    BE1 --> FS
+    BE1 --> AI
+    BE1 --> GS
+    BE1 -.->|SAP Export File| SAP
+        </div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="boxes"></i> Docker Container Topology (Production)</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    subgraph SharedInfra["shared-db Stack"]
+        PG[("postgres:5433\nPostgreSQL 15")]
+        PGAdmin["pgAdmin 4\n:5050"]
+    end
+    subgraph AccountStack["account-a-team Stack"]
+        API["account-api\n:4000"]
+        WEB["frontend\n:3000"]
+        API -->|Prisma ORM| PG
+        WEB --> API
+    end
+    subgraph WorkStack["work-tracking Stack"]
+        WORK["web\n:8090"]
+        WORK -->|Prisma ORM| PG
+    end
+    subgraph MgmtStack["management-tracking Stack"]
+        MAPI["api (Fastify)\n:4090"]
+        MWEB["web (Vite)\n:80"]
+        MWEB --> MAPI
+        MAPI -->|Prisma ORM| PG
+    end
+    subgraph TrackBStack["Track B Stack"]
+        TAPP["app\n:3080"]
+        TWORKER["worker (BullMQ)"]
+        REDIS[("redis:6379")]
+        TAPP -->|Drizzle ORM| PG
+        TAPP --> REDIS
+        TWORKER --> REDIS
+        TWORKER -->|Drizzle ORM| PG
+    end
+    subgraph GitLab["GitLab CI/CD"]
+        Runner["GitLab Runner"]
+        Registry["Container Registry"]
+        Portainer["Portainer GitOps\nPull every 5 min"]
+        Runner --> Registry
+        Portainer -->|Pull| Registry
+    end
+    Portainer -.->|Deploy| AccountStack
+        </div></div>
+    </div>
+</section>
+
+<!-- ══ INFRA: APP-TIER ══ -->
+<section id="app-tier" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="monitor" style="width:13px;height:13px;"></i> Application Access Flow</div>
+        <div class="header-title"><i data-lucide="monitor" style="color:var(--accent-color);width:28px;height:28px;"></i> ผังการเข้าถึง Application (Detailed Access Flow)</div>
+        <div class="header-desc">เส้นทางการเข้าถึงระบบจากผู้ใช้งาน ผ่าน Portal, JWT Permission Check จนถึงแต่ละ Web Application</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="waypoints"></i> Portal → Permission → Application Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    Portal["Portal Landing Page\nsupport.ww.co.th"] --> Auth
+    Auth{"App Permission Check\nJWT Decode + RolePermission\nDB Lookup"}
+    Auth -->|"SUPERADMIN/ADMIN/USER\n15+ Accounting Modules"| App1
+    Auth -->|"ADMIN/MANAGER\nProject & WBS"| App2
+    Auth -->|"MANAGER/FINANCE\nProject Budget & Reports"| App3
+    Auth -->|"ADMIN/ANALYST\nCM Field Analytics"| App4
+    App1["Account A-Team\nNext.js :3000 → Express :4000\n■ auth  ■ drive  ■ OCR  ■ fuel\n■ bank-charge  ■ reconcile  ■ sap"]
+    App2["Work Tracking\nNext.js :8090\n■ Projects  ■ WBS  ■ TeamMember\n■ BugReport  ■ TechStack"]
+    App3["Management Tracking\nFastify :4090 / Vite :80\n■ Finance  ■ FieldReport\n■ ImportJob  ■ Task"]
+    App4["Track B Analytics\nNext.js :3080 + Worker\n■ CM Analytics  ■ SLA\n■ BullMQ Queue  ■ Redis"]
+        </div></div>
+    </div>
+    <div class="app-grid">
+        <div class="app-card">
+            <div class="app-card-header"><div><div class="app-card-name">Account A-Team</div><div class="app-card-tech">Next.js 16 + Express.js 5 + Prisma 5</div></div><span class="tier-badge backend">Core System</span></div>
+            <div class="app-card-body">ระบบหลักฝ่ายบัญชี — OCR, ค่าน้ำมันช่างเทคนิค, กระทบยอดธนาคาร, GL Account Mapping, SAP Export</div>
+            <div class="app-card-footer"><span class="tag tag-purple">15+ Modules</span><span class="tag tag-success">40+ Tables</span><span class="tag tag-primary">:3000/:4000</span><span class="tag tag-warning">AI/OCR</span></div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-header"><div><div class="app-card-name">Work Tracking</div><div class="app-card-tech">Next.js 16 + Prisma 7 + React Flow</div></div><span class="tier-badge frontend">Tracking</span></div>
+            <div class="app-card-body">ระบบติดตามงานโปรเจกต์ WBS (Epic/Story/Task/SubTask) พร้อม Visual Workflow, Bug Report</div>
+            <div class="app-card-footer"><span class="tag tag-purple">~15 Tables</span><span class="tag tag-primary">:8090</span><span class="tag tag-success">Visual WBS</span></div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-header"><div><div class="app-card-name">Management Tracking</div><div class="app-card-tech">Fastify 5 + Vite + React 18 + Prisma 6</div></div><span class="tier-badge backend">Management</span></div>
+            <div class="app-card-body">ระบบบริหารโปรเจกต์, Milestone, Finance Transaction, Field Report, AI Import Pipeline</div>
+            <div class="app-card-footer"><span class="tag tag-purple">~12 Tables</span><span class="tag tag-primary">:4090</span><span class="tag tag-warning">AI Import</span></div>
+        </div>
+        <div class="app-card">
+            <div class="app-card-header"><div><div class="app-card-name">Track B (Team Performance)</div><div class="app-card-tech">Next.js 16 + BullMQ + Redis 7 + Drizzle</div></div><span class="tier-badge database">Analytics</span></div>
+            <div class="app-card-body">Dashboard วิเคราะห์ Corrective Maintenance, SLA tracking, Root Cause Analysis, BullMQ Worker</div>
+            <div class="app-card-footer"><span class="tag tag-purple">~8 Tables</span><span class="tag tag-danger">Redis Queue</span><span class="tag tag-primary">:3080</span></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="shield-check"></i> Account A-Team — Roles &amp; Module Access Matrix</div>
+        <table class="info-table">
+            <thead><tr><th>Role</th><th>สิทธิ์</th><th>Module ที่เข้าได้</th><th>File System Access</th></tr></thead>
+            <tbody>
+                <tr><td>SUPERADMIN</td><td><span class="tag tag-danger">สิทธิ์สูงสุด</span></td><td>ทุก Module (30 เมนู)</td><td>ทุกโฟลเดอร์ ไม่ผ่าน UserFolderAccess</td></tr>
+                <tr><td>ADMIN</td><td><span class="tag tag-warning">จัดการข้อมูลและผู้ใช้</span></td><td>ส่วนใหญ่ ยกเว้น System Settings บางส่วน</td><td>ตาม RolePermission</td></tr>
+                <tr><td>USER</td><td><span class="tag tag-success">อัปโหลดและดูข้อมูลตัวเอง</span></td><td>ตาม UserPermission (per-user)</td><td>เฉพาะโฟลเดอร์ที่ได้รับสิทธิ์ UserFolderAccess</td></tr>
+                <tr><td>Rate Limit</td><td colspan="3"><span class="tag tag-primary">15 requests / 15 minutes</span> สำหรับ <code class="code-snippet">/api/auth/login</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══ INFRA: DB-TIER ══ -->
+<section id="db-tier" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="database" style="width:13px;height:13px;"></i> Database Architecture</div>
+        <div class="header-title"><i data-lucide="database" style="color:var(--accent-color);width:28px;height:28px;"></i> ผังฐานข้อมูล (Database Architecture)</div>
+        <div class="header-desc">โครงสร้างฐานข้อมูลแบบละเอียด แสดง Schema, Tables และการเชื่อมต่อของแต่ละ Application</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="git-branch"></i> Application → Database Schema Routing</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    subgraph Apps["Web Applications"]
+        A1["Account A-Team\nExpress.js"]
+        A2["Work Tracking\nNext.js"]
+        A3["Management\nFastify"]
+        A4["Track B\nNext.js"]
+    end
+    ORM{"Prisma ORM / Drizzle\nQuery Builder"}
+    A1 --> ORM
+    A2 --> ORM
+    A3 --> ORM
+    A4 --> ORM
+    ORM -->|"DATABASE_URL\npostgres:5433"| PG[("PostgreSQL 15\nshared-postgres")]
+    PG --> DB1[("account_a_team\n40+ tables")]
+    PG --> DB2[("work_tracking\n~15 tables")]
+    PG --> DB3[("management_tracking\n~12 tables")]
+    PG --> DB4[("team_performance\n~8 tables")]
+    A4 -->|"BullMQ Jobs"| Redis[("Redis 7\n:6379")]
+    Redis -->|"Worker import"| DB4
+        </div></div>
+    </div>
+    <div class="db-grid">
+        <div class="db-card">
+            <div class="db-card-header"><div class="db-icon"><i data-lucide="database"></i></div><div><div class="db-card-name">account_a_team</div><div class="db-card-sub">PostgreSQL 15 — Port 5433</div></div></div>
+            <div class="db-table-count"><i data-lucide="table" style="width:13px;height:13px;"></i> 40+ Tables</div>
+            <div class="db-card-tables">User, RefreshToken, BlacklistedToken, RolePermission, UserPermission, AuditLog<br>DriveFile, DriveFileVersion, UserFolderAccess, FileViewLog, FileActivityLog<br>TechnicianFuelRecord, TechnicianFuelResult, FuelBankMatchSession, FuelSapExportSession<br>ocr_import, ocr_import_item, extracted_document<br>bank_charge, bank_charge_upload_item, bank_charge_report<br>bank_transfer, bank_transfer_item<br>reconcile_job, reconcile_bank_statement, reconcile_gl_record<br>gl_account, SystemSetting, AiTokenLog, AdminActionLog</div>
+        </div>
+        <div class="db-card">
+            <div class="db-card-header"><div class="db-icon"><i data-lucide="database"></i></div><div><div class="db-card-name">work_tracking</div><div class="db-card-sub">PostgreSQL 15 — Port 5433</div></div></div>
+            <div class="db-table-count"><i data-lucide="table" style="width:13px;height:13px;"></i> ~15 Tables</div>
+            <div class="db-card-tables">SystemUser, Project, TeamMember<br>Epic, Story, Task, SubTask (WBS Hierarchy)<br>WbsLog (Audit Trail)<br>TechStack, WorkflowStep, WorkflowTransition<br>BugReport, BugAttachment<br>ActivityLog, Notification</div>
+        </div>
+        <div class="db-card">
+            <div class="db-card-header"><div class="db-icon"><i data-lucide="database"></i></div><div><div class="db-card-name">management_tracking</div><div class="db-card-sub">PostgreSQL 15 — Port 5433</div></div></div>
+            <div class="db-table-count"><i data-lucide="table" style="width:13px;height:13px;"></i> ~12 Tables</div>
+            <div class="db-card-tables">User, Project, Milestone<br>Task, TaskChecklistItem<br>FinanceTransaction, FileAttachment<br>FieldReport, ImportJob<br>ProcessTemplate, ProcessStep<br>Notification</div>
+        </div>
+        <div class="db-card">
+            <div class="db-card-header"><div class="db-icon"><i data-lucide="database"></i></div><div><div class="db-card-name">team_performance</div><div class="db-card-sub">PostgreSQL 15 + Redis 7</div></div></div>
+            <div class="db-table-count"><i data-lucide="table" style="width:13px;height:13px;"></i> ~8 Tables + Queue</div>
+            <div class="db-card-tables">corrective_maintenance (Range Partitioned by month)<br>work_load, work_orders<br>import_jobs (BullMQ tracking)<br>audit_logs<br><br><span class="tag tag-danger">Redis 7 — BullMQ Job Queue</span></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="settings"></i> PostgreSQL Configuration Guide (Shared Instance)</div>
+        <table class="info-table">
+            <thead><tr><th>Parameter</th><th>Development</th><th>Staging</th><th>Production (แนะนำ)</th></tr></thead>
+            <tbody>
+                <tr><td>max_connections</td><td>50</td><td>100</td><td>200–300</td></tr>
+                <tr><td>shared_buffers</td><td>256 MB</td><td>2 GB</td><td>8–16 GB (25% of RAM)</td></tr>
+                <tr><td>effective_cache_size</td><td>512 MB</td><td>8 GB</td><td>24–48 GB (75% of RAM)</td></tr>
+                <tr><td>work_mem</td><td>4 MB</td><td>8 MB</td><td>16–32 MB</td></tr>
+                <tr><td>wal_buffers</td><td>16 MB</td><td>64 MB</td><td>256 MB</td></tr>
+                <tr><td>Backup Strategy</td><td>ไม่จำเป็น</td><td>Daily pg_dump</td><td>pg_dump daily + WAL archiving + Off-site</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══ INFRA: STORAGE ══ -->
+<section id="storage" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="hard-drive" style="width:13px;height:13px;"></i> Storage Analysis</div>
+        <div class="header-title"><i data-lucide="hard-drive" style="color:var(--accent-color);width:28px;height:28px;"></i> วิเคราะห์พื้นที่จัดเก็บข้อมูล (File Storage Analysis)</div>
+        <div class="header-desc">การประมาณการขนาดไฟล์แต่ละ Module พร้อมอัตราการขยายตัว เพื่อวางแผน Storage Capacity</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="folder-open"></i> File Storage Structure — <code class="code-snippet">./upload-file/</code></div>
+        <table class="info-table">
+            <thead><tr><th>โฟลเดอร์</th><th>Module</th><th>ประเภทไฟล์</th><th>ขนาด/ไฟล์</th><th>ปริมาณ/เดือน</th><th>ขยาย/ปี</th><th>สัดส่วน</th></tr></thead>
+            <tbody>
+                <tr><td><code class="code-snippet">Technician/</code></td><td><span class="tag tag-warning">TECHNICIAN_FUEL</span></td><td>JPEG, PDF</td><td>2–5 MB</td><td>500–2,000 ไฟล์</td><td>12–120 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:55%;background:var(--warning-color)"></div></div><div class="storage-bar-label">~40%</div></div></td></tr>
+                <tr><td><code class="code-snippet">Drive/</code></td><td><span class="tag tag-primary">DRIVE</span></td><td>ทุกประเภท</td><td>1 KB–50 MB</td><td>5 GB × users</td><td>250 GB–1 TB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:80%;background:var(--tier-frontend)"></div></div><div class="storage-bar-label">~35%</div></div></td></tr>
+                <tr><td><code class="code-snippet">OCR/</code></td><td><span class="tag tag-primary">OCR_IMPORT</span></td><td>PDF, PNG</td><td>1–3 MB</td><td>200–500 ไฟล์</td><td>2.4–18 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:20%;background:var(--accent-color)"></div></div><div class="storage-bar-label">~8%</div></div></td></tr>
+                <tr><td><code class="code-snippet">Reconcile/</code></td><td><span class="tag tag-success">RECONCILE</span></td><td>Excel, CSV</td><td>2–20 MB</td><td>10–50 ไฟล์</td><td>240 MB–12 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:12%;background:var(--tier-database)"></div></div><div class="storage-bar-label">~5%</div></div></td></tr>
+                <tr><td><code class="code-snippet">Details/</code></td><td><span class="tag tag-primary">DETAIL</span></td><td>Excel, PDF</td><td>1–10 MB</td><td>20–100 ไฟล์</td><td>240 MB–12 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:10%;background:var(--tier-external)"></div></div><div class="storage-bar-label">~5%</div></div></td></tr>
+                <tr><td><code class="code-snippet">BankCharge/</code></td><td><span class="tag tag-warning">BANK_CHARGE</span></td><td>Excel, CSV</td><td>1–5 MB</td><td>10–30 ไฟล์</td><td>120 MB–1.8 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:5%;background:var(--tier-storage)"></div></div><div class="storage-bar-label">~3%</div></div></td></tr>
+                <tr><td><code class="code-snippet">BankTransfer/</code></td><td><span class="tag tag-warning">BANK_TRANSFER</span></td><td>Text, CSV</td><td>1–5 MB</td><td>10–30 ไฟล์</td><td>120 MB–1.8 GB</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:5%;background:var(--tier-storage)"></div></div><div class="storage-bar-label">~3%</div></div></td></tr>
+                <tr><td><code class="code-snippet">temp/</code></td><td><span class="tag tag-danger">TEMP</span></td><td>PNG (OCR temp)</td><td>1–5 MB</td><td>ลบอัตโนมัติ</td><td>~0</td><td><div class="storage-bar-wrap"><div class="storage-bar-track"><div class="storage-bar-fill" style="width:1%;background:var(--danger-color)"></div></div><div class="storage-bar-label">&lt;1%</div></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="trending-up"></i> การประมาณ Storage รวม (2 ปี)</div>
+            <table class="info-table">
+                <tr><td>Files (ไม่รวม Drive)</td><td>50–200 GB/ปี → <strong>100–400 GB ใน 2 ปี</strong></td></tr>
+                <tr><td>Drive (User Quota)</td><td>5 GB × 50–200 users = <strong>250 GB–1 TB</strong></td></tr>
+                <tr><td>PostgreSQL (active)</td><td><strong>20–50 GB</strong> (รวม audit logs)</td></tr>
+                <tr><td>PostgreSQL Backups (30 วัน)</td><td>~<strong>30 × 5 GB = 150 GB</strong></td></tr>
+                <tr><td>Docker Images + Logs</td><td>~<strong>20–50 GB</strong></td></tr>
+                <tr><td><strong>รวม Active Storage</strong></td><td><strong>600 GB – 1.7 TB</strong></td></tr>
+                <tr><td><strong>รวมกับ Backup (3x)</strong></td><td><strong>1.8 TB – 5 TB</strong></td></tr>
+            </table>
+            <div class="callout warning" style="margin-top:1.25rem">
+                <div class="callout-title"><i data-lucide="alert-triangle" style="width:15px;height:15px;color:var(--warning-color)"></i> คำแนะนำ</div>
+                วางแผน Active Data <strong>2 TB</strong> และ Backup <strong>6–10 TB</strong> พร้อม Alert เมื่อใช้เกิน 70%
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> Database Size Estimation</div>
+            <table class="info-table">
+                <tr><td>account_a_team (Year 1)</td><td>10–30 GB</td></tr>
+                <tr><td>account_a_team (Year 2)</td><td>20–60 GB (รวม AiTokenLog, AuditLog)</td></tr>
+                <tr><td>work_tracking</td><td>1–5 GB</td></tr>
+                <tr><td>management_tracking</td><td>1–5 GB</td></tr>
+                <tr><td>team_performance</td><td>5–20 GB (CM records จำนวนมาก)</td></tr>
+                <tr><td>Redis (BullMQ)</td><td>&lt;1 GB (in-memory queue)</td></tr>
+                <tr><td><strong>รวม DB (Year 2)</strong></td><td><strong>30–100 GB</strong></td></tr>
+            </table>
+            <div class="callout success" style="margin-top:1.25rem">
+                <div class="callout-title"><i data-lucide="check-circle" style="width:15px;height:15px;color:var(--success-color)"></i> Best Practice</div>
+                ตั้ง pg_partitioning บน AuditLog, AiTokenLog, FileActivityLog แบ่งตามเดือน
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ INFRA: SERVER-SPEC ══ -->
+<section id="server-spec" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="cpu" style="width:13px;height:13px;"></i> Server Specifications</div>
+        <div class="header-title"><i data-lucide="cpu" style="color:var(--accent-color);width:28px;height:28px;"></i> ข้อกำหนด Server (Server Specification Analysis)</div>
+        <div class="header-desc">ข้อกำหนด Hardware ที่แนะนำสำหรับแต่ละสภาพแวดล้อม พร้อมเหตุผลทางเทคนิค</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="monitor-check"></i> เหตุผลที่ต้องการทรัพยากรสูง (Why High Specs Matter)</div>
+        <ul class="steps-list">
+            <li class="step-item"><div class="step-number">1</div><div class="step-content"><h4>AI/OCR Processing — CPU Intensive</h4><p>ประมวลผลรูปภาพด้วย Sharp + ส่งให้ OpenRouter API แบบ concurrent หลาย request พร้อมกัน ใช้ CPU สูงมากช่วง Batch Upload</p></div></li>
+            <li class="step-item"><div class="step-number">2</div><div class="step-content"><h4>File Upload สูงสุด 10 GB ต่อไฟล์</h4><p><code class="code-snippet">MAX_UPLOAD_SIZE_MB=10240</code> — ไฟล์ขนาดใหญ่ต้องการ Memory Buffer และ I/O Speed สูง</p></div></li>
+            <li class="step-item"><div class="step-number">3</div><div class="step-content"><h4>PostgreSQL Shared Instance — 4 Databases</h4><p>PostgreSQL รองรับ 4 databases พร้อมกัน ต้องการ RAM สูงสำหรับ shared_buffers (25% RAM)</p></div></li>
+            <li class="step-item"><div class="step-number">4</div><div class="step-content"><h4>Excel/VLookup Processing — Memory Heavy</h4><p>ExcelJS อ่านไฟล์ Excel ทั้ง Workbook ขึ้น Memory ก่อน ต้องการ RAM เพียงพอสำหรับ Hash Map ใน VLookup Engine</p></div></li>
+            <li class="step-item"><div class="step-number">5</div><div class="step-content"><h4>12+ Docker Containers บน Host เดียว</h4><p>Production รัน 12+ containers พร้อมกัน แต่ละ Node.js process ใช้ RAM ~200–500 MB baseline</p></div></li>
+        </ul>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="layers"></i> Workload Profile Analysis</div>
+        <table class="info-table">
+            <thead><tr><th>Component</th><th>CPU Impact</th><th>RAM Required</th><th>Disk I/O</th><th>Network</th></tr></thead>
+            <tbody>
+                <tr><td>Account A-Team API (Express)</td><td><span class="tag tag-danger">HIGH</span> (AI/OCR)</td><td>1–2 GB</td><td><span class="tag tag-warning">HIGH</span></td><td><span class="tag tag-warning">HIGH</span></td></tr>
+                <tr><td>Next.js Frontends (×4)</td><td><span class="tag tag-success">LOW</span></td><td>200–500 MB each</td><td><span class="tag tag-success">LOW</span></td><td><span class="tag tag-success">LOW</span></td></tr>
+                <tr><td>Fastify API (Management)</td><td><span class="tag tag-success">LOW</span></td><td>200–500 MB</td><td><span class="tag tag-success">LOW</span></td><td><span class="tag tag-success">LOW</span></td></tr>
+                <tr><td>BullMQ Worker (Track B)</td><td><span class="tag tag-warning">MEDIUM</span></td><td>500 MB–1 GB</td><td><span class="tag tag-warning">MEDIUM</span></td><td><span class="tag tag-success">LOW</span></td></tr>
+                <tr><td>PostgreSQL 15 (Shared)</td><td><span class="tag tag-warning">MEDIUM</span></td><td>8–16 GB (buffers)</td><td><span class="tag tag-danger">HIGH</span> (IOPS)</td><td><span class="tag tag-primary">INTERNAL</span></td></tr>
+                <tr><td>Redis 7</td><td><span class="tag tag-success">VERY LOW</span></td><td>256 MB</td><td><span class="tag tag-success">LOW</span></td><td><span class="tag tag-primary">INTERNAL</span></td></tr>
+                <tr><td>Sharp (Image Processing)</td><td><span class="tag tag-danger">HIGH</span> (bursts)</td><td>Shared with API</td><td><span class="tag tag-warning">MEDIUM</span></td><td><span class="tag tag-success">LOW</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══ INFRA: ENV-COMPARE ══ -->
+<section id="env-compare" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="git-compare-arrows" style="width:13px;height:13px;"></i> Environment Comparison</div>
+        <div class="header-title"><i data-lucide="git-compare-arrows" style="color:var(--accent-color);width:28px;height:28px;"></i> เปรียบเทียบสภาพแวดล้อม Dev / Staging / Production</div>
+        <div class="header-desc">ข้อกำหนด Server Specification ฉบับละเอียดเปรียบเทียบระหว่าง 3 สภาพแวดล้อม</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="table-2"></i> Server Specification Comparison Table</div>
+        <div style="overflow-x:auto">
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th style="text-align:left">Specification</th>
+                    <th><div class="env-header"><div class="env-icon-wrap dev"><i data-lucide="laptop" style="width:16px;height:16px;"></i></div>Development</div></th>
+                    <th><div class="env-header"><div class="env-icon-wrap stg"><i data-lucide="flask-conical" style="width:16px;height:16px;"></i></div>Staging</div></th>
+                    <th class="col-prod"><div class="env-header"><div class="env-icon-wrap prod"><i data-lucide="server" style="width:16px;height:16px;"></i></div>Production ★</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>CPU (vCPU)</td><td>4 vCPU<br><small>AMD Ryzen 5 / Intel i5</small></td><td>8 vCPU<br><small>AMD Ryzen 7 / Xeon E</small></td><td class="col-prod highlight-cell">16 vCPU (แนะนำ)<br><small>AMD EPYC / Intel Xeon</small></td></tr>
+                <tr><td>RAM</td><td>16 GB DDR4</td><td>32 GB DDR4</td><td class="col-prod highlight-cell">64 GB DDR4 ECC<br><small>Minimum 32 GB</small></td></tr>
+                <tr><td>OS + App Disk</td><td>256 GB SSD</td><td>512 GB NVMe SSD</td><td class="col-prod highlight-cell">1 TB NVMe SSD<br><small>RAID 1 หรือ RAID 10</small></td></tr>
+                <tr><td>File Storage</td><td>200 GB SSD</td><td>1 TB SSD</td><td class="col-prod highlight-cell">4 TB+ NAS/SAN<br><small>+ 10 TB Backup</small></td></tr>
+                <tr><td>Network</td><td>100 Mbps LAN</td><td>500 Mbps</td><td class="col-prod highlight-cell">1 Gbps (redundant)<br><small>2 NICs Bonding</small></td></tr>
+                <tr><td>Concurrent Users</td><td>2–5 คน</td><td>10–30 คน</td><td class="col-prod highlight-cell">50–200 คน</td></tr>
+                <tr><td>Docker Containers</td><td>6–8 containers</td><td>8–12 containers</td><td class="col-prod highlight-cell">12–16 containers</td></tr>
+                <tr><td>PostgreSQL Config</td><td>shared_buffers: 256 MB</td><td>shared_buffers: 4 GB</td><td class="col-prod highlight-cell">shared_buffers: 16 GB<br>max_connections: 200</td></tr>
+                <tr><td>File Upload Max</td><td>10 GB per file</td><td>10 GB per file</td><td class="col-prod highlight-cell">10 GB per file</td></tr>
+                <tr><td>User Storage Quota</td><td>5 GB / user</td><td>5 GB / user</td><td class="col-prod highlight-cell">5–20 GB / user</td></tr>
+                <tr><td>Backup Strategy</td><td>ไม่บังคับ</td><td>Daily pg_dump, 7 days</td><td class="col-prod highlight-cell">Daily + WAL + Off-site 30 days</td></tr>
+                <tr><td>Monitoring</td><td>ไม่จำเป็น</td><td>Basic (Docker logs)</td><td class="col-prod highlight-cell">Prometheus + Grafana + Alert</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <div class="recommend-box">
+            <h4><i data-lucide="check-circle" style="width:17px;height:17px;"></i> Production Server Recommendation</h4>
+            <p>สำหรับ Production 50–200 users แนะนำ <strong>16 vCPU, 64 GB RAM, 1 TB NVMe (OS/DB) + 4 TB NAS (Files)</strong> พร้อม Backup Off-site และ PgBouncer สำหรับ Connection Pooling</p>
+        </div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="box"></i> Docker Services Breakdown (Production)</div>
+            <table class="info-table">
+                <tr><td>account-api</td><td>Express.js :4000 — Core API</td></tr>
+                <tr><td>frontend (account)</td><td>Next.js :3000</td></tr>
+                <tr><td>work-tracking web</td><td>Next.js :8090</td></tr>
+                <tr><td>management-api</td><td>Fastify :4090</td></tr>
+                <tr><td>management-web</td><td>Vite+React :80</td></tr>
+                <tr><td>trackb-app</td><td>Next.js :3080</td></tr>
+                <tr><td>trackb-worker</td><td>BullMQ Worker</td></tr>
+                <tr><td>postgres (shared)</td><td>PostgreSQL 15 :5433</td></tr>
+                <tr><td>redis</td><td>Redis 7 :6379</td></tr>
+                <tr><td>pgadmin</td><td>pgAdmin 4 :5050</td></tr>
+                <tr><td>portainer</td><td>Portainer :9000 (GitOps)</td></tr>
+                <tr><td>nginx / reverse proxy</td><td>:80/:443 — Entry point</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="shield"></i> Security Checklist (Production)</div>
+            <ul class="steps-list">
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>Rate Limiting</h4><p>15 req/15 min บน Auth endpoint — ป้องกัน Brute-force</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>JWT + Refresh Token Rotation</h4><p>BlacklistedToken table ป้องกัน session hijack</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>Full Audit Trail</h4><p>AuditLog, FileActivityLog, AdminActionLog — ทุก action บันทึก</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.3);color:var(--warning-color);">!</div><div class="step-content"><h4>SSL/TLS Certificate (แนะนำ)</h4><p>ควรตั้ง HTTPS ด้วย Let's Encrypt บน nginx reverse proxy</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.3);color:var(--warning-color);">!</div><div class="step-content"><h4>PostgreSQL Network Isolation (แนะนำ)</h4><p>ควร bind postgres เฉพาะ Docker internal network ไม่ expose port 5433 ออก internet</p></div></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ══ INFRA: COST ══ -->
+<section id="cost" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="circle-dollar-sign" style="width:13px;height:13px;"></i> Cost Estimation</div>
+        <div class="header-title"><i data-lucide="circle-dollar-sign" style="color:var(--accent-color);width:28px;height:28px;"></i> ประมาณการค่าใช้จ่าย (Cost Estimation)</div>
+        <div class="header-desc">เปรียบเทียบค่าใช้จ่าย Cloud vs On-Premise IDC สำหรับ Production Environment</div>
+    </header>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="cloud"></i> Cloud Deployment (AWS/GCP/Azure)</div>
+            <table class="cost-table">
+                <thead><tr><th>รายการ</th><th>Spec</th><th>ต่อเดือน (USD)</th></tr></thead>
+                <tbody>
+                    <tr><td>Compute (VM)</td><td>16 vCPU, 64 GB RAM</td><td>$400–600</td></tr>
+                    <tr><td>NVMe SSD (OS+DB)</td><td>1 TB gp3</td><td>$80–100</td></tr>
+                    <tr><td>File Storage</td><td>4 TB</td><td>$90–150</td></tr>
+                    <tr><td>Backup Storage</td><td>10 TB</td><td>$50–100</td></tr>
+                    <tr><td>Network Egress</td><td>~500 GB/month</td><td>$40–80</td></tr>
+                    <tr><td>Load Balancer</td><td>1 instance</td><td>$20–30</td></tr>
+                    <tr><td>Monitoring</td><td>Basic</td><td>$20–40</td></tr>
+                    <tr class="total-row"><td><strong>รวม / เดือน</strong></td><td></td><td><strong>$700–1,100</strong></td></tr>
+                    <tr class="total-row"><td><strong>รวม / ปี</strong></td><td></td><td><strong>~300,000–475,000 THB</strong></td></tr>
+                </tbody>
+            </table>
+            <div class="callout" style="margin-top:1rem"><div class="callout-title"><i data-lucide="check" style="width:14px;height:14px;color:var(--accent-color)"></i> ข้อดี Cloud</div>ขยาย/ลด Spec ได้ทันที, ไม่ต้องซื้อ Hardware, มี SLA 99.9%+, DR/Failover ง่าย</div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="building-2"></i> On-Premise (IDC Colocation)</div>
+            <table class="cost-table">
+                <thead><tr><th>รายการ</th><th>รายละเอียด</th><th>ราคา (THB)</th></tr></thead>
+                <tbody>
+                    <tr><td>Server Hardware</td><td>16 vCPU, 64 GB RAM, RAID</td><td>300,000–500,000 (ครั้งเดียว)</td></tr>
+                    <tr><td>NAS (10 TB)</td><td>QNAP/Synology</td><td>50,000–120,000 (ครั้งเดียว)</td></tr>
+                    <tr><td>UPS + Rack</td><td>2U Rack + 1 kVA UPS</td><td>30,000–80,000 (ครั้งเดียว)</td></tr>
+                    <tr><td>IDC Colocation</td><td>2U, 100 Mbps, 15A</td><td>15,000–25,000/เดือน</td></tr>
+                    <tr><td>Maintenance</td><td>Annual support</td><td>20,000–40,000/ปี</td></tr>
+                    <tr class="total-row"><td><strong>ค่าเริ่มต้น</strong></td><td></td><td><strong>380,000–700,000 THB</strong></td></tr>
+                    <tr class="total-row"><td><strong>รายเดือน</strong></td><td></td><td><strong>15,000–27,000 THB/เดือน</strong></td></tr>
+                </tbody>
+            </table>
+            <div class="callout success" style="margin-top:1rem"><div class="callout-title"><i data-lucide="check" style="width:14px;height:14px;color:var(--success-color)"></i> ข้อดี On-Premise</div>ข้อมูลการเงินอยู่ภายในบริษัท, ค่ารายเดือนต่ำระยะยาว, ควบคุมได้เต็มที่</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="bar-chart-3"></i> 3-Year Total Cost of Ownership (TCO)</div>
+        <table class="cost-table">
+            <thead><tr><th>ปี</th><th>Cloud (THB)</th><th>On-Premise (THB)</th><th>ส่วนต่าง</th></tr></thead>
+            <tbody>
+                <tr><td>ปีที่ 1</td><td>300,000–475,000</td><td>595,000–1,024,000 (รวมลงทุน)</td><td>Cloud ถูกกว่า ~320,000–550,000 THB</td></tr>
+                <tr><td>ปีที่ 2</td><td>300,000–475,000</td><td>180,000–324,000 (IDC + Maintenance)</td><td>On-Premise ถูกกว่า ~120,000–150,000 THB</td></tr>
+                <tr><td>ปีที่ 3</td><td>300,000–475,000</td><td>180,000–324,000</td><td>On-Premise ถูกกว่า ~120,000–150,000 THB</td></tr>
+                <tr class="total-row"><td><strong>รวม 3 ปี</strong></td><td><strong>900,000–1,425,000</strong></td><td><strong>955,000–1,672,000</strong></td><td><strong>ใกล้เคียงกัน (Cloud ยืดหยุ่นกว่า)</strong></td></tr>
+            </tbody>
+        </table>
+        <div class="recommend-box">
+            <h4><i data-lucide="star" style="width:17px;height:17px;"></i> คำแนะนำสุดท้าย</h4>
+            <p>สำหรับ Wire &amp; Wireless ที่มีข้อมูลการเงินอ่อนไหว แนะนำ <strong>On-Premise IDC</strong> เป็นตัวเลือกหลัก เพราะควบคุมข้อมูลได้เอง, ค่าใช้จ่ายระยะยาวต่ำกว่า และไม่มีความเสี่ยง Data Sovereignty<br><br>หากต้องการ Scalability สูง ใช้ <strong>Hybrid Cloud</strong>: On-Premise สำหรับ Production + Cloud สำหรับ Backup Off-site และ Staging</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══ ACCOUNT A-TEAM: OVERVIEW ══ -->
+<section id="acct-overview" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="info" style="color:#38bdf8;width:28px;height:28px;"></i> Account A-Team — ภาพรวมระบบ</div>
+        <div class="header-desc">ระบบวิเคราะห์และสอบทานเอกสารทางบัญชีอัตโนมัติ (Account A-Team Webhook UI &amp; Processing Engine)</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="network"></i> ความเชื่อมโยงการทำงานในระบบ</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    subgraph UserTech["User / Technician"]
+        Tech["ผู้ใช้งาน / ช่างเทคนิค"] -->|อัปโหลดเอกสาร| FE["Frontend Next.js :3000"]
+    end
+    subgraph AppStack["App Stack"]
+        FE -->|API Call / JWT| BE["Backend Express.js :4000"]
+        BE -->|Prisma ORM| DB[("account_a_team\nPostgreSQL 15")]
+        BE -->|Read/Write| Disk["upload-file/"]
+    end
+    subgraph ProcessEngine["Processing Engine"]
+        BE -->|1. PDF to PNG| Sharp["Sharp / pdftoppm"]
+        BE -->|2. Image Orientation| Sharp
+        BE -->|3. AI Extraction| AI["OpenRouter LLM APIs"]
+        BE -->|4. Business Rules| Rules["WIRE Validation Engine"]
+        BE -->|5. External Sync| GS["Google Sheets API"]
+    end
+        </div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="layers"></i> Tech Stack</div>
+        <div class="badge-list">
+            <span class="tag tag-purple">Next.js 16</span><span class="tag tag-primary">Express.js 5</span><span class="tag tag-primary">Prisma 5</span><span class="tag tag-success">PostgreSQL 15</span><span class="tag tag-warning">OpenRouter API (Vision LLM)</span><span class="tag tag-orange">Google Sheets API</span><span class="tag tag-primary">JWT Auth</span><span class="tag tag-danger">Sharp / pdftoppm</span><span class="tag tag-orange">Docker</span>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="box"></i> Storage Layout — <code class="code-snippet">upload-file/</code></div>
+        <table class="info-table">
+            <thead><tr><th>โฟลเดอร์</th><th>Module</th><th>วัตถุประสงค์</th></tr></thead>
+            <tbody>
+                <tr><td>Technician/</td><td><span class="tag tag-warning">TECHNICIAN_FUEL</span></td><td>ใบเสร็จน้ำมันช่างหน้างาน</td></tr>
+                <tr><td>OCR/</td><td><span class="tag tag-primary">OCR_IMPORT</span></td><td>ใบกำกับภาษีสำหรับ OCR</td></tr>
+                <tr><td>Drive/</td><td><span class="tag tag-primary">DRIVE</span></td><td>พื้นที่เก็บไฟล์กลาง (5 GB/user)</td></tr>
+                <tr><td>Reconcile/</td><td><span class="tag tag-success">RECONCILE</span></td><td>ไฟล์ Bank Statement + GL Book</td></tr>
+                <tr><td>Details/</td><td><span class="tag tag-primary">DETAIL</span></td><td>รายละเอียดธุรกรรม</td></tr>
+                <tr><td>BankCharge/</td><td><span class="tag tag-warning">BANK_CHARGE</span></td><td>ค่าธรรมเนียมธนาคาร</td></tr>
+                <tr><td>BankTransfer/</td><td><span class="tag tag-warning">BANK_TRANSFER</span></td><td>รายการโอนเงิน</td></tr>
+                <tr><td>GL Account/</td><td><span class="tag tag-primary">GL_ACCOUNT</span></td><td>ผังบัญชีแยกประเภท</td></tr>
+                <tr><td>SAP Export History/</td><td><span class="tag tag-primary">SAP_EXPORT</span></td><td>ประวัติ Export SAP</td></tr>
+                <tr><td>Fleet Card Invoice/</td><td><span class="tag tag-primary">FLEET_CARD</span></td><td>ใบแจ้งหนี้บัตรน้ำมัน</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: AUTH ══ -->
+<section id="acct-auth" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="shield-check" style="color:#38bdf8;width:28px;height:28px;"></i> 1. ระบบความปลอดภัยและการจัดการสิทธิ์ (Authentication &amp; Authorization)</div>
+        <div class="header-desc">ดูแลการยืนยันตัวตนและการเข้าถึงเมนูต่างๆ รวมถึงสิทธิ์ระดับโฟลเดอร์สำหรับผู้ใช้งาน</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="git-commit"></i> ผังขั้นตอนการเข้าใช้งานระบบ (Auth Flow)</div>
+            <div class="diagram-container"><div class="mermaid">
+sequenceDiagram
+    participant User as ผู้ใช้งาน
+    participant FE as Frontend Next.js
+    participant BE as Backend Express
+    participant DB as PostgreSQL
+    User->>FE: 1. กรอก Username/Password
+    FE->>BE: 2. POST /api/auth/login
+    BE->>DB: 3. ตรวจเช็คข้อมูลผู้ใช้
+    DB-->>BE: ข้อมูลผู้ใช้
+    alt ข้อมูลถูกต้อง
+        BE->>BE: 4. สร้าง Access Token (JWT)
+        BE->>DB: 5. บันทึก Refresh Token
+        BE-->>FE: 6. ส่ง JWT + สิทธิ์ผู้ใช้
+        FE-->>User: 7. เข้าสู่หน้าหลัก (RolePermission)
+    else ข้อมูลไม่ถูกต้อง
+        BE-->>FE: Error 401
+        FE-->>User: แสดงข้อความผิดพลาด
+    end
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="list-filter"></i> รายละเอียดที่สำคัญ</div>
+            <table class="info-table">
+                <tr><td>ตารางฐานข้อมูล</td><td><code class="code-snippet">User</code> / <code class="code-snippet">RefreshToken</code> / <code class="code-snippet">RolePermission</code></td></tr>
+                <tr><td>Routes</td><td><code class="code-snippet">/api/auth/login</code><br><code class="code-snippet">/api/auth/refresh</code></td></tr>
+                <tr><td>Roles</td><td><strong>SUPERADMIN:</strong> สิทธิ์สูงสุด<br><strong>ADMIN:</strong> จัดการข้อมูล<br><strong>USER:</strong> อัปโหลดและดูข้อมูลตนเอง</td></tr>
+                <tr><td>Security</td><td>Rate Limit 15 ครั้ง / 15 นาที บน Auth endpoint</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="list"></i> ขั้นตอนการควบคุมสิทธิ์ละเอียด</div>
+        <ul class="steps-list">
+            <li class="step-item"><div class="step-number">1</div><div class="step-content"><h4>Token Blacklist &amp; Session Revoke</h4><p>ทุก Request Backend ถอดรหัส JWT แล้วตรวจสอบกับตาราง <code class="code-snippet">BlacklistedToken</code> ว่าผู้ใช้ยังไม่ได้ Logout</p></div></li>
+            <li class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Menu Mapping via RolePermission</h4><p>สิทธิ์การมองเห็นเมนูควบคุมผ่านตาราง <code class="code-snippet">RolePermission</code> ซึ่งมีเมนูย่อย 30 เมนู ระบบส่งคืน list ที่ได้รับสิทธิ์เฉพาะของผู้ใช้รายนั้น</p></div></li>
+            <li class="step-item"><div class="step-number">3</div><div class="step-content"><h4>Folder-Level Access Security</h4><p>ผู้ใช้ทั่วไปดูและอัปโหลดได้เฉพาะโฟลเดอร์ที่ได้รับสิทธิ์ผ่านตาราง <code class="code-snippet">UserFolderAccess</code> — SuperAdmin/Admin ข้ามระบบนี้ได้</p></div></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: FUEL ══ -->
+<section id="acct-fuel" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="fuel" style="color:#38bdf8;width:28px;height:28px;"></i> 2. โมดูลตรวจสอบค่าน้ำมันช่างหน้างาน (Technician Fuel &amp; Matching System)</div>
+        <div class="header-desc">ประมวลผลรูปถ่ายใบเสร็จน้ำมันจากช่างเทคนิคผ่าน AI, สอบทานความถูกต้อง และกระทบยอดค่าน้ำมัน</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="workflow"></i> ลำดับกระบวนการประมวลผลใบเสร็จน้ำมัน</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    Upload["ช่างอัปโหลดภาพ/PDF ใบเสร็จน้ำมัน"] --> CheckType{เช็คประเภทไฟล์}
+    CheckType -->|PDF| PDFtoPNG["แปลง PDF → PNG (pdftoppm)"]
+    CheckType -->|Image| AutoRotate["หมุนภาพอัตโนมัติ (EXIF)"]
+    PDFtoPNG --> AutoRotate
+    AutoRotate --> CallAI["ส่งให้ AI Vision API สกัดข้อมูล OCR"]
+    CallAI --> SaveResult["บันทึกเข้า technician_fuel_results"]
+    SaveResult --> Validation{ตรวจสอบชื่อบริษัท / เลขผู้เสียภาษี}
+    Validation -->|ไม่ถูกต้อง| MarkMismatch["สถานะ: WIRE_MISMATCH"]
+    Validation -->|ถูกต้อง W&W| AutoLink["เครื่องยนต์จับคู่ Session ยอดธนาคาร"]
+    AutoLink --> WaitingConfirm["สถานะ: WAITING_CORRECTION"]
+        </div></div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="check-square"></i> WIRE AND WIRELESS Validation Rules</div>
+            <ul style="list-style:inside circle;font-size:0.875rem;color:var(--text-primary);display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
+                <li>ชื่อผู้ซื้อ: <strong>บริษัท ไวร์ แอนด์ ไวร์เลส จำกัด</strong></li>
+                <li>เลขผู้เสียภาษีผู้ซื้อ: <strong>0105538111243</strong></li>
+                <li>ที่อยู่และสาขาตามที่สรรพากรกำหนด</li>
+            </ul>
+            <div class="callout"><div class="callout-title"><i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> ตรวจไม่ผ่าน</div>ระบบตั้งสถานะ <code class="code-snippet">WIRE_MISMATCH</code> และหยุดอัตโนมัติ รอเจ้าหน้าที่บัญชี Manual Override</div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> รายละเอียดทางเทคนิค</div>
+            <table class="info-table">
+                <tr><td>ตารางหลัก</td><td><code class="code-snippet">technician_fuel_records</code><br><code class="code-snippet">technician_fuel_results</code><br><code class="code-snippet">fuel_bank_match_sessions</code></td></tr>
+                <tr><td>Background Job</td><td>Cron Job Sync ข้อมูลกับ Google Sheets ตามช่วงเวลาที่ตั้งไว้</td></tr>
+                <tr><td>AI Model</td><td>ตัวแปร <code class="code-snippet">AI_MODEL_VISION</code> ใน .env</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: OCR ══ -->
+<section id="acct-ocr" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="scan-line" style="color:#38bdf8;width:28px;height:28px;"></i> 3. โมดูลแปลงไฟล์และสกัดข้อมูลใบกำกับภาษี (OCR Document Processing)</div>
+        <div class="header-desc">อัปโหลดไฟล์ PDF หรือสแกนเอกสารเพื่อวิเคราะห์ด้วย AI OCR สรุปรายละเอียดเจ้าหนี้ ลูกหนี้ ยอด VAT</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="activity"></i> OCR Processing Flow</div>
+            <div class="diagram-container"><div class="mermaid">
+sequenceDiagram
+    participant User as บัญชี/ระบบ
+    participant API as OCR Routes
+    participant Svc as OCR Service
+    participant LLM as OpenRouter Vision LLM
+    participant DB as Database
+    User->>API: อัปโหลดใบกำกับภาษี (PDF/รูป)
+    API->>Svc: เรียกฟังก์ชันสกัด
+    alt ไฟล์เป็น PDF
+        Svc->>Svc: แปลงหน้าแรก → PNG
+    end
+    Svc->>LLM: ส่งรูป + Prompt สกัดฟิลด์
+    LLM-->>Svc: JSON โครงสร้างข้อมูล
+    Svc->>Svc: ตรวจสอบความถูกต้อง
+    Svc->>DB: บันทึก ocr_import + items
+    Svc-->>API: ผลลัพธ์
+    API-->>User: ตารางใบกำกับภาษี
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="code"></i> ข้อมูลทางเทคนิค</div>
+            <table class="info-table">
+                <tr><td>ฟิลด์ที่สกัด</td><td>Invoice No, Invoice Date, Vendor Name, Tax ID, Subtotal, VAT, Grand Total</td></tr>
+                <tr><td>AI Model</td><td>ดึงจาก <code class="code-snippet">AI_MODEL_VISION</code> เช่น Gemini 2.0 Flash</td></tr>
+                <tr><td>ตารางฐานข้อมูล</td><td><code class="code-snippet">ocr_import</code><br><code class="code-snippet">ocr_import_item</code><br><code class="code-snippet">extracted_document</code></td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: DETAIL ══ -->
+<section id="acct-detail" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="file-spreadsheet" style="color:#38bdf8;width:28px;height:28px;"></i> 4. โมดูลรายละเอียดบัญชีและ VLookup อัตโนมัติ (Detail &amp; Automated VLookup)</div>
+        <div class="header-desc">จัดการข้อมูลรายละเอียดใบเสร็จ/ใบแจ้งหนี้ และดำเนินการเปรียบเทียบและ Mapping ข้ามไฟล์ด้วย VLookup</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="columns"></i> ลำดับการทำ Auto-VLookup</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    UploadSource["อัปโหลด Source Excel"] --> UploadTarget["อัปโหลด Target Excel"]
+    UploadTarget --> ConfigMapping["ตั้งค่า Column Key Mapping"]
+    ConfigMapping --> RunEngine["VLookup Engine (HashMap)"]
+    RunEngine --> CompareCheck["เปรียบเทียบรหัสและค่า"]
+    CompareCheck --> GenerateFile["ผลลัพธ์ Excel (temp/vlookup/)"]
+    GenerateFile --> Download["ส่งลิงก์ดาวน์โหลด"]
+        </div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="file-check"></i> รายละเอียดการทำงานของ Engine</div>
+        <ul class="steps-list">
+            <li class="step-item"><div class="step-number">1</div><div class="step-content"><h4>โหลด Workbook ขนาดใหญ่</h4><p>ใช้ ExcelJS ในการอ่าน Workbook โดยไม่เก็บทั้งไฟล์ใน memory ถาวร เพื่อป้องกัน OOM (Out Of Memory)</p></div></li>
+            <li class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Key Mapping Logic with HashMap</h4><p>ผู้ใช้กำหนด Column Key ของทั้ง Source และ Target ระบบสร้าง HashMap เชื่อมโยงข้อมูลและคัดเลือกคอลัมน์ที่ต้องการมาเพิ่มในแถว Target โดยอัตโนมัติ</p></div></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: DRIVE ══ -->
+<section id="acct-drive" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="hard-drive" style="color:#38bdf8;width:28px;height:28px;"></i> 5. ระบบจัดการไฟล์และประวัติเวอร์ชันเอกสาร (File System &amp; Versioning)</div>
+        <div class="header-desc">จัดเก็บไฟล์ภายในระบบ ตรวจสอบสิทธิ์ บันทึกความเคลื่อนไหว และจัดเก็บไฟล์ย้อนหลังเป็นเวอร์ชัน</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="git-branch"></i> File Versioning Flow</div>
+            <div class="diagram-container"><div class="mermaid">
+graph TD
+    Upload["ผู้ใช้อัปโหลดไฟล์ทับไฟล์เดิม"] --> CheckExists{ตรวจสอบ DriveFile}
+    CheckExists -->|ไม่ซ้ำ| CreateNew["สร้าง Record ใหม่"]
+    CheckExists -->|มีชื่อนี้แล้ว| BackupOld["ย้ายไปเก็บใน DriveFileVersion"]
+    BackupOld --> UpdateCurrent["เขียนไฟล์ทับ + อัปเดต DriveFile"]
+    UpdateCurrent --> LogAct["บันทึกใน FileActivityLog"]
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="shield"></i> Audit &amp; Access Control</div>
+            <table class="info-table">
+                <tr><td>ตารางจัดการไฟล์</td><td><code class="code-snippet">DriveFile</code><br><code class="code-snippet">DriveFileVersion</code><br><code class="code-snippet">UserFolderAccess</code></td></tr>
+                <tr><td>ตารางประวัติ</td><td><code class="code-snippet">FileViewLog</code><br><code class="code-snippet">FileActivityLog</code></td></tr>
+                <tr><td>Audit Trail</td><td>ทุกการอัปโหลด ลบ หรือเปิดอ่านไฟล์ บันทึกชื่อผู้ใช้ วันเวลา เครื่อง — ไม่สามารถแก้ไขหรือลบได้</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: GL ══ -->
+<section id="acct-gl" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="book-open" style="color:#38bdf8;width:28px;height:28px;"></i> 6. ระบบจัดการผังบัญชีแยกประเภท (GL Account Master Data)</div>
+        <div class="header-desc">จัดการข้อมูลผังบัญชีแยกประเภท สำหรับนำมาใช้ใน Reconcile และ SAP Export</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="file-check"></i> ขั้นตอนการลงทะเบียนรหัสผังบัญชี (GL Master Upload)</div>
+        <ul class="steps-list">
+            <li class="step-item"><div class="step-number">1</div><div class="step-content"><h4>นำเข้ารหัสบัญชีผ่าน Excel</h4><p>Admin นำเข้าไฟล์ Excel สรุปรหัสบัญชีแยกประเภท ระบบอ่านคอลัมน์ GL Account Number และชื่อบัญชีไทย/อังกฤษ</p></div></li>
+            <li class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Upsert — ตรวจสอบรหัสซ้ำ</h4><p>หากพบรหัสบัญชีเดิมจะอัปเดตชื่อล่าสุดแทน (Upsert) เพื่อป้องกันข้อมูลขัดแย้ง</p></div></li>
+            <li class="step-item"><div class="step-number">3</div><div class="step-content"><h4>ใช้ใน Reconcile และ SAP Export</h4><p>ตาราง <code class="code-snippet">gl_account</code> ถูกดึงไปใช้เป็นฐานอ้างอิงรหัสบัญชีใน Reconcile Module และ SAP Export Engine</p></div></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: BANK CHARGE ══ -->
+<section id="acct-bank-charge" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="coins" style="color:#38bdf8;width:28px;height:28px;"></i> 7. โมดูลค่าธรรมเนียมธนาคาร (Bank Charge Management)</div>
+        <div class="header-desc">ประมวลผลไฟล์รายงานค่าธรรมเนียม ดอกเบี้ย และค่าบริการธนาคาร เพื่อตรวจสอบและสรุปรายงานบัญชีประจำเดือน</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="clipboard-list"></i> Bank Charge Workflow</div>
+            <div class="diagram-container"><div class="mermaid">
+graph LR
+    Upload["อัปโหลด Excel/Text\nรายงานค่าธรรมเนียม"] --> Parse["แยกประเภทรายการธุรกรรม"]
+    Parse --> Filter["คัดแยก Charge + VAT หัก ณ ที่จ่าย"]
+    Filter --> DB["บันทึก bank_charge\n+ bank_charge_upload_item"]
+    DB --> Report["ตาราง/กราฟสรุปยอด\nเทียบ Statement"]
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="file-text"></i> ข้อมูลตาราง</div>
+            <table class="info-table">
+                <tr><td>ตารางฐานข้อมูล</td><td><code class="code-snippet">bank_charge</code><br><code class="code-snippet">bank_charge_report</code><br><code class="code-snippet">bank_charge_upload_item</code></td></tr>
+                <tr><td>Route</td><td><code class="code-snippet">/api/bank-charge</code></td></tr>
+                <tr><td>วัตถุประสงค์</td><td>ตรวจสอบค่าธรรมเนียม ดอกเบี้ยจ่าย ยอด VAT ให้ตรงกับ Statement ธนาคาร</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: BANK TRANSFER ══ -->
+<section id="acct-bank-transfer" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="send" style="color:#38bdf8;width:28px;height:28px;"></i> 8. โมดูลจัดการธุรกรรมโอนเงินธนาคาร (Bank Transfer Management)</div>
+        <div class="header-desc">อัปโหลดไฟล์ยืนยันการโอนเงิน คัดแยกข้อมูลบัญชีต้นทาง ปลายทาง ยอดเงิน เวลา</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="repeat"></i> Bank Transfer Processing</div>
+        <ul class="steps-list">
+            <li class="step-item"><div class="step-number">1</div><div class="step-content"><h4>อัปโหลดไฟล์ Text/CSV ยืนยันการโอนเงิน</h4><p>ฝ่ายบัญชีอัปโหลดไฟล์รายงานรวมจากธนาคาร (ผลลัพธ์การโอนเงินแบบกลุ่ม)</p></div></li>
+            <li class="step-item"><div class="step-number">2</div><div class="step-content"><h4>Parse &amp; Extract ระดับแถว</h4><p>ระบบใช้ Regex + Parser ดึงวัน/เวลาโอน เลขอ้างอิงธนาคาร ยอดเงิน รหัสธนาคารเข้า-ออก</p></div></li>
+            <li class="step-item"><div class="step-number">3</div><div class="step-content"><h4>เชื่อมโยงไป Reconcile</h4><p>บันทึกลงตาราง <code class="code-snippet">bank_transfer</code> และแจ้งรายการบนหน้าบ้าน พร้อมประมวลผลต่อในหน้ากระทบยอด</p></div></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: RECONCILE ══ -->
+<section id="acct-reconcile" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="git-compare" style="color:#38bdf8;width:28px;height:28px;"></i> 9. ระบบเปรียบเทียบกระทบยอด (Bank Statement &amp; GL Reconcile Engine)</div>
+        <div class="header-desc">จับคู่อัตโนมัติระหว่าง Bank Statement กับ GL Book ของบริษัท</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="arrow-right-left"></i> Reconcile Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    Step1["อัปโหลด Bank Statement"] --> ReconcileJob["สร้าง Reconcile Job"]
+    Step2["อัปโหลด GL Book"] --> ReconcileJob
+    ReconcileJob --> Engine["Reconcile Matching Engine"]
+    Engine --> Rule1{ยอดเงินตรงกัน?}
+    Rule1 -->|ไม่| NonMatch["เก็บแบบตรวจไม่พบ"]
+    Rule1 -->|ใช่| Rule2{ช่วงวันอยู่ใน Tolerance?}
+    Rule2 -->|ไม่| CompareText["เปรียบเทียบข้อความอ้างอิง"]
+    Rule2 -->|ใช่| MatchSuccess["MATCHED"]
+    CompareText --> MatchScore{คะแนนความคล้ายสูง?}
+    MatchScore -->|ใช่| MatchSuccess
+    MatchScore -->|ไม่| NonMatch
+    MatchSuccess --> SaveDB["บันทึกผลลัพธ์"]
+    NonMatch --> WaitingUser["แสดงให้เจ้าหน้าที่เลือกจับคู่เอง"]
+        </div></div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="activity"></i> Matching Engine Logic</div>
+            <ul style="list-style:inside circle;font-size:0.875rem;color:var(--text-primary);display:flex;flex-direction:column;gap:0.5rem;">
+                <li>1-to-1: ตรวจสอบยอดตรงกันในช่วงวันใกล้เคียง</li>
+                <li>1-to-Many / Many-to-1: หายอดหลายก้อนที่รวมแล้วได้ยอดเดียวกัน</li>
+                <li>Tolerance Range: ช่วงวันห่างกันไม่เกินที่กำหนด (e.g. 3–7 วัน)</li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> ตารางฐานข้อมูล</div>
+            <table class="info-table">
+                <tr><td>ตารางหลัก</td><td><code class="code-snippet">reconcile_job</code><br><code class="code-snippet">reconcile_bank_statement</code><br><code class="code-snippet">reconcile_gl_record</code></td></tr>
+                <tr><td>ต่อยอด</td><td>รายการที่ไม่ผ่าน → Outstanding Bank Reconciliation Report สำหรับผู้ตรวจสอบบัญชี</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: SAP ══ -->
+<section id="acct-sap" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="download" style="color:#38bdf8;width:28px;height:28px;"></i> 10. ระบบส่งออกข้อมูลสู่ SAP (SAP Export Engine)</div>
+        <div class="header-desc">แปลงธุรกรรมที่ตรวจสอบแล้วเสร็จเป็นไฟล์สำหรับนำเข้าสู่ SAP ERP</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="repeat"></i> SAP Data Pipeline</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    Select["เลือกงวด/เซสชันที่อนุมัติแล้ว"] --> FilterApproved["คัดกรองธุรกรรม Approved"]
+    FilterApproved --> MapGL["Map รหัสธนาคาร/งาน → GL Account SAP"]
+    MapGL --> GenerateFormat["จัดเรียง Column ตาม SAP Format"]
+    GenerateFormat --> ExportFile["Export Excel / Text → SAP Export History/"]
+    ExportFile --> DriveSync["Backup ไปยัง Google Drive"]
+    DriveSync --> LogUser["บันทึกประวัติการ Export"]
+        </div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="info"></i> SAP File Format Fields</div>
+        <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.6;margin-bottom:1rem;">ระบบจัดเรียงฟิลด์อย่างละเอียดตาม SAP Standard: Posting Date, Document Date, Header Text, Item Text, Debit/Credit Indicator, Cost Center / Internal Order เพื่อให้นำเข้าสำเร็จ</p>
+        <table class="info-table">
+            <tr><td>ตารางประวัติ</td><td><code class="code-snippet">fuel_sap_export_sessions</code> / <code class="code-snippet">FuelSapExportSession</code></td></tr>
+        </table>
+    </div>
+</section>
+
+<!-- ══ ACCOUNT: ADMIN ══ -->
+<section id="acct-admin" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="layers" style="width:13px;height:13px;color:#38bdf8"></i> Account A-Team</div>
+        <div class="header-title"><i data-lucide="users" style="color:#38bdf8;width:28px;height:28px;"></i> 11. ระบบการดูแลตรวจสอบกิจกรรม (Admin Controls &amp; Audit Trail Logs)</div>
+        <div class="header-desc">บันทึกประวัติการดำเนินกิจกรรม สถิติการใช้งาน AI และตรวจสอบสุขภาพระบบ</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="shield-alert"></i> Audit Logging Flow</div>
+            <div class="diagram-container"><div class="mermaid">
+graph TD
+    Action["ผู้ใช้กระทำกิจกรรม\n(อนุมัติ/ลบไฟล์)"] --> LogEngine["Audit Engine"]
+    LogEngine --> SaveAudit["บันทึก AuditLog"]
+    AdminAction["Admin จัดการระบบ\n(เปลี่ยนสิทธิ์)"] --> SaveAdminLog["บันทึก AdminActionLog"]
+    TokenUse["เรียกใช้ AI OCR"] --> SaveTokenLog["บันทึก ai_token_logs"]
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="clipboard"></i> ตารางและสถิติ AI</div>
+            <table class="info-table">
+                <tr><td>ตารางประวัติ</td><td><code class="code-snippet">AuditLog</code><br><code class="code-snippet">AdminActionLog</code><br><code class="code-snippet">ai_token_logs</code></td></tr>
+                <tr><td>AI Token Tracking</td><td>บันทึก Input/Output Tokens ของ OCR และค่าน้ำมัน เพื่อวิเคราะห์ค่าใช้จ่าย</td></tr>
+                <tr><td>Health Check</td><td>เส้นทาง <code class="code-snippet">/health</code> รัน <code class="code-snippet">SELECT 1</code> ตรวจสอบ DB Status (UP/DOWN)</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ WORK TRACKING: OVERVIEW ══ -->
+<section id="work-overview" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="git-branch" style="width:13px;height:13px;color:#818cf8"></i> Work Tracking</div>
+        <div class="header-title"><i data-lucide="info" style="color:#818cf8;width:28px;height:28px;"></i> Work Tracking — ภาพรวมระบบ</div>
+        <div class="header-desc">ระบบติดตามงาน WBS แบบ Visual Hierarchy สำหรับ Project Management พร้อม Bug Report และ Tech Stack management</div>
+    </header>
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">Framework</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">Next.js</div><div class="stat-sub">v16.2.6 Fullstack</div></div>
+        <div class="stat-item"><div class="stat-label">ORM</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">Prisma</div><div class="stat-sub">v7.8.0</div></div>
+        <div class="stat-item"><div class="stat-label">Auth</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">jose</div><div class="stat-sub">JWT (HS256/RS256)</div></div>
+        <div class="stat-item"><div class="stat-label">Visual Board</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">React</div><div class="stat-sub">Flow Drag &amp; Drop</div></div>
+        <div class="stat-item"><div class="stat-label">Export</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">PDF</div><div class="stat-sub">html2canvas + jsPDF</div></div>
+        <div class="stat-item"><div class="stat-label">Port</div><div class="stat-value" style="font-size:1.1rem;color:#818cf8;">:8090</div><div class="stat-sub">Docker Production</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="network"></i> System Overview</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    User["ผู้ใช้งาน (PM / Developer)"] --> App["Work Tracking App\nNext.js 16 — :8090"]
+    App --> API["Next.js API Routes\n(Fullstack)"]
+    API --> Auth["jose JWT\nAuth Middleware"]
+    API --> DB[("work_tracking\nPostgreSQL 15 :5433")]
+    App --> RF["React Flow\nVisual WBS Board\n(Drag &amp; Drop)"]
+    App --> Export["html2canvas + jsPDF\nPDF WBS Report"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="layers"></i> Tech Stack</div>
+            <div class="badge-list">
+                <span class="tag tag-purple">Next.js 16.2.6</span><span class="tag tag-purple">Prisma 7.8.0</span><span class="tag tag-primary">React Flow</span><span class="tag tag-primary">jose JWT</span><span class="tag tag-warning">html2canvas</span><span class="tag tag-warning">jsPDF</span><span class="tag tag-success">PostgreSQL 15</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> Database Tables (work_tracking)</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+                SystemUser, Project, TeamMember<br>
+                Epic, Story, Task, SubTask <span class="tag tag-purple" style="font-size:0.68rem;">WBS Hierarchy</span><br>
+                WbsLog <span class="tag tag-primary" style="font-size:0.68rem;">Audit Trail</span><br>
+                TechStack, WorkflowStep, WorkflowTransition<br>
+                BugReport, BugAttachment, ActivityLog
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ WORK TRACKING: WBS ══ -->
+<section id="work-wbs" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="git-branch" style="width:13px;height:13px;color:#818cf8"></i> Work Tracking</div>
+        <div class="header-title"><i data-lucide="git-branch" style="color:#818cf8;width:28px;height:28px;"></i> WBS &amp; Project Board — ระบบ Work Breakdown Structure</div>
+        <div class="header-desc">Visual WBS Board พร้อม Drag &amp; Drop โหนดงาน และ Export เป็น PDF Report</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="git-branch"></i> WBS Hierarchy</div>
+            <div class="diagram-container"><div class="mermaid">
+graph TD
+    P["Project"] --> E["Epic"]
+    E --> S["Story"]
+    S --> T["Task"]
+    T --> ST["SubTask"]
+    T --> WL["WbsLog\n(Audit Trail — บันทึกทุก change)"]
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="code"></i> API Routes</div>
+            <table class="info-table">
+                <tr><td><code class="code-snippet">/api/projects</code></td><td>GET list / POST create</td></tr>
+                <tr><td><code class="code-snippet">/api/projects/[id]</code></td><td>GET / PUT / DELETE project</td></tr>
+                <tr><td><code class="code-snippet">/api/projects/[id]/epics</code></td><td>GET / POST epics</td></tr>
+                <tr><td><code class="code-snippet">/api/projects/[id]/tasks</code></td><td>GET / POST tasks</td></tr>
+                <tr><td><code class="code-snippet">/api/wbs</code></td><td>GET full WBS tree</td></tr>
+                <tr><td><code class="code-snippet">/api/bug-reports</code></td><td>Bug report management</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="move"></i> React Flow Visual Board</div>
+            <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.65;">ผู้ใช้สามารถลากวางโหนดงาน (Drag &amp; Drop) บน Canvas และระบบบันทึกตำแหน่ง <code class="code-snippet">x, y</code> ของแต่ละโหนดลงฐานข้อมูล พร้อม Real-time update ทุกครั้งที่มีการเปลี่ยนแปลง</p>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="file-down"></i> PDF WBS Report Export</div>
+            <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.65;">ใช้ <code class="code-snippet">html2canvas</code> ถ่ายภาพ React Flow Canvas แล้ว <code class="code-snippet">jsPDF</code> สร้างไฟล์ PDF สำหรับ WBS Report ใช้ส่งรายงานความคืบหน้าโปรเจกต์</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══ WORK TRACKING: TEAM ══ -->
+<section id="work-team" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="git-branch" style="width:13px;height:13px;color:#818cf8"></i> Work Tracking</div>
+        <div class="header-title"><i data-lucide="users" style="color:#818cf8;width:28px;height:28px;"></i> Team &amp; Permissions — จัดการทีมและสิทธิ์ผู้ใช้งาน</div>
+        <div class="header-desc">RBAC (Role-Based Access Control) ควบคุมสิทธิ์การจัดการ Project และ WBS</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="shield-check"></i> Role Definitions</div>
+        <table class="info-table">
+            <thead><tr><th>Role</th><th>สิทธิ์การเข้าถึง</th></tr></thead>
+            <tbody>
+                <tr><td><span class="tag tag-danger">Superadmin</span></td><td>จัดการทุกอย่าง เห็นทุก Project ทั้งระบบ</td></tr>
+                <tr><td><span class="tag tag-warning">Admin</span></td><td>จัดการ Users และ Projects ทั้งหมด</td></tr>
+                <tr><td><span class="tag tag-purple">PM</span></td><td>สร้างและแก้ไข WBS ของ Project ที่ตนเองรับผิดชอบ</td></tr>
+                <tr><td><span class="tag tag-primary">Developer</span></td><td>อัปเดตสถานะ Task ที่ถูก Assign ให้ตนเอง</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="key"></i> JWT Authentication Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+sequenceDiagram
+    participant U as ผู้ใช้งาน
+    participant MW as Auth Middleware (jose)
+    participant API as API Route Handler
+    U->>MW: Request + Bearer JWT Token
+    MW->>MW: jose.verify(token, secret)
+    alt Token Valid
+        MW->>API: Pass user payload (id, role)
+        API-->>U: Response data
+    else Token Invalid / Expired
+        MW-->>U: 401 Unauthorized
+    end
+        </div></div>
+    </div>
+</section>
+
+<!-- ══ WORK TRACKING: MISC ══ -->
+<section id="work-misc" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="git-branch" style="width:13px;height:13px;color:#818cf8"></i> Work Tracking</div>
+        <div class="header-title"><i data-lucide="settings" style="color:#818cf8;width:28px;height:28px;"></i> Tech Stack &amp; Integration</div>
+        <div class="header-desc">รายละเอียดทางเทคนิคและการเชื่อมต่อกับ Shared Infrastructure</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="layers"></i> Technical Summary</div>
+        <table class="info-table">
+            <tr><td>Framework</td><td>Next.js 16.2.6 — Fullstack (Frontend + API Routes ในไฟล์เดียวกัน)</td></tr>
+            <tr><td>ORM</td><td>Prisma 7.8.0 เชื่อมต่อ PostgreSQL 15 Shared Instance (port 5433)</td></tr>
+            <tr><td>Authentication</td><td>jose JWT — HS256 หรือ RS256 Asymmetric Keys</td></tr>
+            <tr><td>Visual Board</td><td>React Flow — Drag &amp; Drop WBS Node พร้อมบันทึกพิกัด x,y ใน DB</td></tr>
+            <tr><td>Report Export</td><td>html2canvas (screenshot canvas) + jsPDF (generate PDF)</td></tr>
+            <tr><td>Bug Tracking</td><td>Module Bug Report พร้อม Attachment รองรับในระบบ</td></tr>
+            <tr><td>Workflow Management</td><td>WorkflowStep + WorkflowTransition สำหรับกำหนด Process Flow</td></tr>
+            <tr><td>Production Port</td><td><code class="code-snippet">:8090</code> — Docker Container ใน team-network</td></tr>
+        </table>
+    </div>
+</section>
+
+<!-- ══ MANAGEMENT TRACKING: OVERVIEW ══ -->
+<section id="mgmt-overview" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="clipboard-list" style="width:13px;height:13px;color:#4ade80"></i> Management Tracking</div>
+        <div class="header-title"><i data-lucide="info" style="color:#4ade80;width:28px;height:28px;"></i> Management Tracking — ภาพรวมระบบ</div>
+        <div class="header-desc">ระบบติดตามงาน Field Technician, Finance Reports และ Import Pipeline ด้วย AI (Claude API)</div>
+    </header>
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">API</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">Fastify</div><div class="stat-sub">v5.2 — :4090</div></div>
+        <div class="stat-item"><div class="stat-label">Frontend</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">Vite</div><div class="stat-sub">React 18 — :80</div></div>
+        <div class="stat-item"><div class="stat-label">ORM</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">Prisma</div><div class="stat-sub">v6.2.1</div></div>
+        <div class="stat-item"><div class="stat-label">Data Fetching</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">TanStack</div><div class="stat-sub">Query v5</div></div>
+        <div class="stat-item"><div class="stat-label">AI Import</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">Claude</div><div class="stat-sub">~0.85 THB/row</div></div>
+        <div class="stat-item"><div class="stat-label">Real-time</div><div class="stat-value" style="font-size:1.1rem;color:#4ade80;">SSE</div><div class="stat-sub">Server-Sent Events</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="network"></i> System Overview</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    Web["Management Web\nVite + React 18 — :80"] --> API["Management API\nFastify 5 — :4090"]
+    API --> DB[("management_tracking\nPostgreSQL 15 :5433")]
+    API --> SSE["SSE Real-time\nNotifications"]
+    API --> TQ["TanStack Query v5\nData Fetching"]
+    API --> Claude["Claude API (Anthropic)\nAI Import Pipeline"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="shield-check"></i> Roles (RBAC)</div>
+            <table class="info-table">
+                <tr><td><span class="tag tag-danger">ADMIN</span></td><td>จัดการ Users ทั้งหมด ดูรายงานทุกประเภท</td></tr>
+                <tr><td><span class="tag tag-warning">PM</span></td><td>จัดการ Project และ Task</td></tr>
+                <tr><td><span class="tag tag-primary">SUPERVISOR</span></td><td>อนุมัติ / ปฏิเสธ Field Report</td></tr>
+                <tr><td><span class="tag tag-success">TECHNICIAN</span></td><td>สร้าง Field Report บนหน้างาน</td></tr>
+                <tr><td><span class="tag tag-purple">OUTSOURCED</span></td><td>ช่างภายนอก — สิทธิ์จำกัด</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> Database Tables (management_tracking)</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.7;">
+                User, Project, Milestone<br>
+                Task, TaskChecklistItem<br>
+                FinanceTransaction, FileAttachment<br>
+                FieldReport <span class="tag tag-primary" style="font-size:0.68rem;">Approval Flow</span><br>
+                ImportJob <span class="tag tag-warning" style="font-size:0.68rem;">AI Pipeline</span><br>
+                ProcessTemplate, ProcessStep<br>
+                Notification
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ MANAGEMENT: FINANCE ══ -->
+<section id="mgmt-finance" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="clipboard-list" style="width:13px;height:13px;color:#4ade80"></i> Management Tracking</div>
+        <div class="header-title"><i data-lucide="receipt" style="color:#4ade80;width:28px;height:28px;"></i> Finance &amp; Reports — ระบบรายงานการเงิน</div>
+        <div class="header-desc">รวบรวมข้อมูล Transaction จากหน้างาน สรุปงบประมาณ และ Export รายงานประจำงวด</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="bar-chart-2"></i> Financial Report Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    FT["TECHNICIAN\nบันทึก FinanceTransaction\nบนหน้างาน"] --> DB[("management_tracking DB")]
+    DB --> Aggr["Aggregate by Period\n(Daily / Weekly / Monthly)"]
+    Aggr --> Report["Finance Report\nสรุปค่าใช้จ่ายตาม Project / Milestone"]
+    Report --> Export["Export Excel / PDF"]
+    Report --> Review["PM Review &amp; Approve"]
+        </div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="table-2"></i> Key Data Points</div>
+        <table class="info-table">
+            <tr><td>ตาราง</td><td><code class="code-snippet">FinanceTransaction</code> — บันทึก Transaction แต่ละรายการ</td></tr>
+            <tr><td>File Attachment</td><td><code class="code-snippet">FileAttachment</code> — แนบเอกสารประกอบ Transaction</td></tr>
+            <tr><td>Period Grouping</td><td>Aggregate ตามงวดที่กำหนด (Daily/Weekly/Monthly) ตาม Project และ Milestone</td></tr>
+            <tr><td>Export Format</td><td>Excel (.xlsx) หรือ PDF สำหรับรายงานส่งผู้บริหาร</td></tr>
+        </table>
+    </div>
+</section>
+
+<!-- ══ MANAGEMENT: FIELD ══ -->
+<section id="mgmt-field" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="clipboard-list" style="width:13px;height:13px;color:#4ade80"></i> Management Tracking</div>
+        <div class="header-title"><i data-lucide="clipboard-list" style="color:#4ade80;width:28px;height:28px;"></i> Field Reports — ระบบรายงานงานหน้างาน (Approval Flow)</div>
+        <div class="header-desc">ช่างเทคนิคสร้าง Field Report บนหน้างาน → Supervisor อนุมัติหรือปฏิเสธ → แจ้งผลผ่าน SSE Real-time</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="git-merge"></i> Field Report Approval Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    T["TECHNICIAN\nสร้าง Field Report"] --> P["PENDING"]
+    P --> S{"SUPERVISOR\nReview"}
+    S -->|"อนุมัติ"| A["APPROVED"]
+    S -->|"ปฏิเสธ + เหตุผล"| R["REJECTED"]
+    A --> SSE["SSE Notification\nส่งหา Technician\n(Real-time)"]
+    R --> SSE
+    SSE --> T2["Technician เห็นสถานะ\nทันทีโดยไม่ Refresh"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="activity"></i> Status States</div>
+            <table class="info-table">
+                <tr><td><span class="tag tag-warning">PENDING</span></td><td>รายงานถูกสร้าง รอ Supervisor ตรวจสอบ</td></tr>
+                <tr><td><span class="tag tag-success">APPROVED</span></td><td>อนุมัติแล้ว — SSE แจ้ง Technician</td></tr>
+                <tr><td><span class="tag tag-danger">REJECTED</span></td><td>ปฏิเสธพร้อมเหตุผล — SSE แจ้ง Technician</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="zap"></i> SSE Real-time Notification</div>
+            <div class="callout success"><div class="callout-title"><i data-lucide="radio" style="width:14px;height:14px;color:var(--success-color)"></i> Server-Sent Events (SSE)</div>Fastify ส่ง SSE Event ไปยัง Browser ของ Technician เมื่อ Supervisor เปลี่ยนสถานะ — ไม่ต้อง Refresh หน้าจอหรือ Poll</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ MANAGEMENT: IMPORT ══ -->
+<section id="mgmt-import" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="clipboard-list" style="width:13px;height:13px;color:#4ade80"></i> Management Tracking</div>
+        <div class="header-title"><i data-lucide="upload" style="color:#4ade80;width:28px;height:28px;"></i> Import Pipeline (AI) — ระบบนำเข้าข้อมูลด้วย AI</div>
+        <div class="header-desc">2 โหมด: LOGIC (Fixed Mapping) สำหรับไฟล์ format คงที่ และ AI (Claude API) สำหรับ Auto-detect columns</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="workflow"></i> Import Pipeline Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    Upload["อัปโหลดไฟล์ Excel / CSV"] --> Mode{เลือก Mode}
+    Mode -->|"LOGIC"| FixedMap["Fixed Column Mapping\n(กำหนดเอง ไม่ใช้ AI)"]
+    Mode -->|"AI"| ClaudeMap["Claude API\nAuto Column Detection\n~0.85 THB / row"]
+    FixedMap --> Validate["Validate &amp; Transform Data"]
+    ClaudeMap --> Validate
+    Validate --> Import["Import to management_tracking DB"]
+    Import --> Log["บันทึก ImportJob Log\n(Status, Rows, Errors)"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="settings"></i> LOGIC Mode vs AI Mode</div>
+            <table class="info-table">
+                <tr><td><span class="tag tag-primary">LOGIC</span></td><td>กำหนด column mapping แบบ Fixed — เหมาะสำหรับไฟล์ที่มี format คงที่ ไม่มีค่าใช้จ่าย AI</td></tr>
+                <tr><td><span class="tag tag-warning">AI</span></td><td>Claude API วิเคราะห์ header อัตโนมัติ map column → field — เหมาะสำหรับไฟล์ format ไม่คงที่</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="circle-dollar-sign"></i> AI Mode Cost</div>
+            <div class="callout warning"><div class="callout-title"><i data-lucide="alert-triangle" style="width:14px;height:14px;color:var(--warning-color)"></i> ค่าใช้จ่าย AI Mode</div>ประมาณ <strong>~0.85 THB ต่อแถว</strong> — ควรใช้เฉพาะไฟล์ที่ format ไม่คงที่ สำหรับไฟล์ที่ format เดิมซ้ำๆ ใช้ LOGIC Mode แทน</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ MANAGEMENT: TASK ══ -->
+<section id="mgmt-task" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="clipboard-list" style="width:13px;height:13px;color:#4ade80"></i> Management Tracking</div>
+        <div class="header-title"><i data-lucide="list-checks" style="color:#4ade80;width:28px;height:28px;"></i> Tasks &amp; Process Templates — จัดการงานและเทมเพลต</div>
+        <div class="header-desc">Task Management พร้อม Checklist และ Process Templates สำหรับสร้างชุดงานซ้ำๆ ได้ทันที</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="git-commit"></i> Task Lifecycle</div>
+        <div class="diagram-container"><div class="mermaid">
+graph LR
+    Create["สร้าง Task"] --> Assign["Assign ให้ผู้รับผิดชอบ"]
+    Assign --> InProg["In Progress"]
+    InProg --> Review["Review"]
+    Review -->|"ผ่าน"| Done["Done ✓"]
+    Review -->|"ไม่ผ่าน"| InProg
+    InProg --> Checklist["TaskChecklistItem\n(sub-checklist per task)"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="copy"></i> Process Templates</div>
+            <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.65;">Admin สร้าง Template ของ Process ที่ซ้ำๆ (ProcessTemplate + ProcessStep) แล้วใช้เป็น Blueprint สำหรับสร้างชุด Task ใหม่ได้ทันที — ลดเวลาสร้างงานซ้ำซ้อน</p>
+            <table class="info-table" style="margin-top:0.75rem">
+                <tr><td><code class="code-snippet">ProcessTemplate</code></td><td>เทมเพลต Process หลัก</td></tr>
+                <tr><td><code class="code-snippet">ProcessStep</code></td><td>ขั้นตอนย่อยของแต่ละ Template</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="milestone"></i> Project Milestones</div>
+            <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.65;">แต่ละ Project มี Milestone เพื่อแบ่ง Phase งาน Task ถูก Assign ไปยัง Milestone ที่เกี่ยวข้อง ใช้สำหรับ Track ความคืบหน้าและ Finance Report แยกตาม Phase</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══ TRACK B: OVERVIEW ══ -->
+<section id="trackb-overview" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="bar-chart-2" style="width:13px;height:13px;color:#fb923c"></i> Track B</div>
+        <div class="header-title"><i data-lucide="info" style="color:#fb923c;width:28px;height:28px;"></i> Track B (Team Performance) — ภาพรวมระบบ</div>
+        <div class="header-desc">ระบบ Analytics KPI สำหรับทีม CM (Corrective Maintenance) พร้อม BullMQ Import Worker และ RS256 Asymmetric Auth</div>
+    </header>
+    <div class="stats-row">
+        <div class="stat-item"><div class="stat-label">Framework</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">Next.js</div><div class="stat-sub">v16.2.6 + Worker</div></div>
+        <div class="stat-item"><div class="stat-label">ORM</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">Drizzle</div><div class="stat-sub">ไม่ใช้ Prisma</div></div>
+        <div class="stat-item"><div class="stat-label">Queue</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">BullMQ</div><div class="stat-sub">v5.77.6 + Redis 7</div></div>
+        <div class="stat-item"><div class="stat-label">Auth</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">RS256</div><div class="stat-sub">Asymmetric JWT Keys</div></div>
+        <div class="stat-item"><div class="stat-label">Charts</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">ECharts</div><div class="stat-sub">v6 KPI Dashboard</div></div>
+        <div class="stat-item"><div class="stat-label">Port</div><div class="stat-value" style="font-size:1.1rem;color:#fb923c;">:3080</div><div class="stat-sub">Docker Production</div></div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="network"></i> System Overview</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    User["ผู้ใช้งาน (Admin / Analyst)"] --> App["Track B App\nNext.js 16 — :3080"]
+    App --> API["Next.js API Routes\n+ RS256 JWT Auth"]
+    API --> DB[("team_performance\nPostgreSQL 15\nRange Partitioned")]
+    API --> Redis[("Redis 7\nBullMQ Queue :6379")]
+    Worker["BullMQ Worker\n(Background Process)"] --> Redis
+    Worker --> DB
+    App --> Charts["ECharts 6\nKPI Dashboard\nDrill-Down"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="layers"></i> Tech Stack</div>
+            <div class="badge-list">
+                <span class="tag tag-orange">Next.js 16.2.6</span><span class="tag tag-orange">Drizzle ORM</span><span class="tag tag-danger">BullMQ 5.77.6</span><span class="tag tag-danger">Redis 7</span><span class="tag tag-warning">JWT RS256</span><span class="tag tag-warning">ECharts 6</span><span class="tag tag-success">PostgreSQL 15</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="globe"></i> Bilingual Support</div>
+            <div class="callout"><div class="callout-title"><i data-lucide="languages" style="width:14px;height:14px;color:var(--accent-color)"></i> TH / EN</div>ระบบรองรับ 2 ภาษา (ไทย / อังกฤษ) ผู้ใช้สามารถสลับภาษาได้บน UI โดยไม่ต้อง Refresh หน้าจอ</div>
+        </div>
+    </div>
+    <div class="callout warning">
+        <div class="callout-title"><i data-lucide="alert-triangle" style="width:14px;height:14px;color:var(--warning-color)"></i> Drizzle ORM — ไม่ใช้ Prisma</div>
+        Track B ใช้ <strong>Drizzle ORM</strong> (ไม่ใช่ Prisma เหมือน 3 projects อื่น) และ PostgreSQL Range Partitioning แบ่ง <code class="code-snippet">corrective_maintenance</code> table รายเดือน เพื่อ Query performance บน data ขนาดใหญ่
+    </div>
+</section>
+
+<!-- ══ TRACK B: CM ANALYTICS ══ -->
+<section id="trackb-cm" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="bar-chart-2" style="width:13px;height:13px;color:#fb923c"></i> Track B</div>
+        <div class="header-title"><i data-lucide="bar-chart-2" style="color:#fb923c;width:28px;height:28px;"></i> CM Analytics &amp; KPI Drill-Down</div>
+        <div class="header-desc">Dashboard วิเคราะห์ Corrective Maintenance KPI แบบ Drill-Down 6 ระดับ Country → Ticket</div>
+    </header>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title"><i data-lucide="chevrons-down"></i> KPI Drill-Down Hierarchy</div>
+            <div class="diagram-container"><div class="mermaid">
+graph TD
+    Country["🌍 Country Level"] --> Region["📍 Region Level"]
+    Region --> Manager["👔 Manager Level"]
+    Manager --> Province["🗺 Province Level"]
+    Province --> Team["👥 Team Level"]
+    Team --> Ticket["🎫 Individual Ticket Level"]
+            </div></div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="activity"></i> Key KPIs Tracked</div>
+            <table class="info-table">
+                <tr><td>MTTR</td><td>Mean Time to Repair — เวลาเฉลี่ยในการซ่อม</td></tr>
+                <tr><td>SLA Compliance</td><td>อัตราการทำงานตาม SLA กำหนด (%)</td></tr>
+                <tr><td>Open / Closed Tickets</td><td>จำนวน Ticket แยกตาม Period</td></tr>
+                <tr><td>Technician Score</td><td>คะแนน Performance รายคน</td></tr>
+                <tr><td>Regional Comparison</td><td>ECharts 6 Bar/Line Chart เปรียบ Region</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i data-lucide="database"></i> PostgreSQL Range Partitioning</div>
+        <div class="callout success">
+            <div class="callout-title"><i data-lucide="zap" style="width:14px;height:14px;color:var(--success-color)"></i> Partition by Month</div>
+            ตาราง <code class="code-snippet">corrective_maintenance</code> ใช้ <code class="code-snippet">PARTITION BY RANGE (ticket_date)</code> แบ่ง partition รายเดือน — Query ดึงเฉพาะ partition เดือนที่ต้องการแทนที่จะ Scan ทั้งตาราง ทำให้รองรับ Data ขนาดใหญ่ได้อย่างมีประสิทธิภาพ
+        </div>
+        <table class="info-table">
+            <tr><td>Partition Strategy</td><td>Monthly range บน <code class="code-snippet">ticket_date</code></td></tr>
+            <tr><td>Pre-create</td><td>สร้าง partition ล่วงหน้า 3 เดือน เพื่อรองรับการ Insert ที่จะมาถึง</td></tr>
+            <tr><td>Index</td><td>Index บน <code class="code-snippet">ticket_date, region, team_id</code> ต่อ partition</td></tr>
+        </table>
+    </div>
+</section>
+
+<!-- ══ TRACK B: BULLMQ ══ -->
+<section id="trackb-import" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="bar-chart-2" style="width:13px;height:13px;color:#fb923c"></i> Track B</div>
+        <div class="header-title"><i data-lucide="layers" style="color:#fb923c;width:28px;height:28px;"></i> BullMQ Worker — ระบบ Background Job นำเข้าข้อมูล CM</div>
+        <div class="header-desc">Worker Process ทำงานเบื้องหลัง ดึง Job จาก Redis Queue และ Import ข้อมูล CM พร้อม Auto-detect file type</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="cpu"></i> BullMQ Worker Architecture</div>
+        <div class="diagram-container"><div class="mermaid">
+sequenceDiagram
+    participant U as ผู้ใช้งาน
+    participant API as Next.js API
+    participant Q as Redis Queue (BullMQ)
+    participant W as BullMQ Worker
+    participant DB as team_performance DB
+    U->>API: อัปโหลดไฟล์ CM Data (CSV/Excel)
+    API->>Q: addJob(fileInfo) — เพิ่ม Job ใน Queue
+    API-->>U: 202 Accepted — "Job queued"
+    W->>Q: getNextJob() — ดึง Job ถัดไป
+    W->>W: Auto-detect file type\n(วิเคราะห์ Header Row)
+    W->>W: Transform &amp; Validate Rows
+    W->>DB: Bulk Insert → Partitioned Table
+    W-->>Q: markCompleted(jobId)
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="search"></i> Auto-detect File Type</div>
+            <p style="font-size:0.875rem;color:var(--text-secondary);line-height:1.65;">Worker ตรวจสอบ Header Row ของไฟล์เพื่อระบุประเภทของข้อมูล CM โดยอัตโนมัติ — รองรับหลาย Format จากหลายแหล่งข้อมูลในบริษัท ไม่ต้องระบุ Format ล่วงหน้า</p>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="database"></i> BullMQ Configuration</div>
+            <table class="info-table">
+                <tr><td>Queue Name</td><td>import-queue (Redis Key)</td></tr>
+                <tr><td>Concurrency</td><td>ควบคุมจำนวน Job ที่รัน parallel ได้</td></tr>
+                <tr><td>Retry</td><td>Auto-retry เมื่อ Job ล้มเหลว</td></tr>
+                <tr><td>Job Tracking</td><td><code class="code-snippet">import_jobs</code> table บันทึก Status ทุก Job</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ══ TRACK B: AUTH ══ -->
+<section id="trackb-auth" class="module-panel">
+    <header>
+        <div class="header-eyebrow"><i data-lucide="bar-chart-2" style="width:13px;height:13px;color:#fb923c"></i> Track B</div>
+        <div class="header-title"><i data-lucide="key" style="color:#fb923c;width:28px;height:28px;"></i> RS256 Auth &amp; Security — ระบบความปลอดภัย</div>
+        <div class="header-desc">RS256 Asymmetric JWT Keys + Redis Rate-limiting ป้องกัน Brute-force Login</div>
+    </header>
+    <div class="card">
+        <div class="card-title"><i data-lucide="shield"></i> Authentication Flow</div>
+        <div class="diagram-container"><div class="mermaid">
+graph TD
+    Login["User Login\n(Username + Password)"] --> Check{"Rate Limit\nRedis: 5 attempts / 60s"}
+    Check -->|"ยังไม่ถึง Limit"| Verify["ตรวจสอบ Credentials"]
+    Check -->|"เกิน Limit"| Block["429 Too Many Requests\n(Block 60 วินาที)"]
+    Verify -->|"สำเร็จ"| Sign["Sign JWT\n(RS256 Private Key)"]
+    Sign --> Token["Return JWT Token"]
+    Request["API Request + JWT"] --> Pub["Verify Signature\n(RS256 Public Key)"]
+    Pub -->|"Valid"| Allow["✓ Grant Access"]
+    Pub -->|"Invalid / Expired"| Deny["401 Unauthorized"]
+        </div></div>
+    </div>
+    <div class="grid-equal">
+        <div class="card">
+            <div class="card-title"><i data-lucide="key"></i> RS256 vs HS256</div>
+            <table class="info-table">
+                <tr><td><span class="tag tag-warning">HS256</span></td><td>Shared Secret Key — ทั้งสองฝั่งใช้ key เดียวกัน ถ้า key หลุดทั้งคู่เสี่ยง</td></tr>
+                <tr><td><span class="tag tag-success">RS256</span></td><td>Asymmetric Keys — Private Key สร้าง JWT, Public Key ตรวจสอบ เฉพาะ API ที่ถือ Private Key เท่านั้นออก Token ได้</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i data-lucide="shield-alert"></i> Security Features</div>
+            <ul class="steps-list">
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>RS256 Asymmetric JWT</h4><p>Private key เก็บเฉพาะ Server ที่ออก Token เท่านั้น</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>Redis Rate-Limiting Login</h4><p>จำกัด 5 attempts / 60 seconds บน Login endpoint — Counter ใน Redis พร้อม TTL 60s</p></div></li>
+                <li class="step-item"><div class="step-number" style="background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--success-color);">✓</div><div class="step-content"><h4>Redis Dual-use</h4><p>Redis ใช้ทั้ง BullMQ Job Queue และ Rate-limiting Counter บน Instance เดียวกัน</p></div></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<script>
+    function switchTab(el) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        document.querySelectorAll('.module-panel').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById(el.getAttribute('data-target'));
+        if (target) {
+            target.classList.add('active');
+            target.querySelectorAll('.mermaid').forEach(div => {
+                if (!div.getAttribute('data-processed')) mermaid.init(undefined, div);
+            });
+        }
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        mermaid.init(undefined, document.querySelectorAll('#infra-overview .mermaid'));
+    });
+</script>
+</body>
+</html>
